@@ -4,7 +4,8 @@
   "description": "Generates a language map from Twitter data",
   "main": "index.js",
   "scripts": {
-    "process-tweets": "node src/process-tweets.js",
+    "add-bounding-box-id": "node src/add-bounding-box-id.js",
+    "add-language-data-cld": "node src/add-language-data-cld.js",
     "test": "mocha test/*"
   },
   "keywords": [
