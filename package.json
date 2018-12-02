@@ -4,7 +4,8 @@
   "description": "Generates a language map from Twitter data",
   "main": "index.js",
   "scripts": {
-    "process-tweets": "node src/process-tweets.js"
+    "process-tweets": "node src/process-tweets.js",
+    "test": "mocha test/*"
   },
   "keywords": [
     "language",
@@ -16,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "cld": "^2.4.8",
+    "cli-progress": "^2.1.0",
     "dotenv": "^6.1.0",
     "mongodb": "^3.1.10"
   },
