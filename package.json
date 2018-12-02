@@ -1,0 +1,31 @@
+{
+  "name": "birdhouse",
+  "version": "1.0.0",
+  "description": "Generates a language map from Twitter data",
+  "main": "index.js",
+  "scripts": {
+    "process-tweets": "node src/process-tweets.js"
+  },
+  "keywords": [
+    "language",
+    "linguistics",
+    "twitter",
+    "map"
+  ],
+  "author": "Joan Perals",
+  "license": "MIT",
+  "dependencies": {
+    "cld": "^2.4.8",
+    "dotenv": "^6.1.0",
+    "mongodb": "^3.1.10"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "node": true
+    }
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
+}
