@@ -12,7 +12,7 @@ MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
   .then(client => {
     const db = client.db(process.env.DATABASE_NAME)
     const collection = db.collection(process.env.COLLECTION_TWEETS)
-    return doInBatches(processTweet, {collection, limit, batchSize})
+    return doInBatches(processTweet, {collection, limit, batchSize, message: 'Adding bounding box information to every tweet...'})
   })
   .then(doneCount => {
     console.log('Processed', doneCount, 'records')

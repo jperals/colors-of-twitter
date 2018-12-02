@@ -3,6 +3,9 @@ const cliProgress = require('cli-progress')
 let progressBar
 
 function doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount = 0, query = {}, batchCallBack, message}) {
+  if(message) {
+    console.log(message)
+  }
   return new Promise((resolve, reject) => {
     getRecordBatch({collection, startFromId, batchSize, query})
       .catch(err => {
