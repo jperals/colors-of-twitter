@@ -6,6 +6,7 @@
   "scripts": {
     "add-bounding-box-id": "node src/add-bounding-box-id.js",
     "add-language-data-cld": "node src/add-language-data-cld.js",
+    "locations": "node src/locations.js",
     "test": "mocha test/*"
   },
   "keywords": [
