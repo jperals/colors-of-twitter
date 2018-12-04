@@ -2,7 +2,7 @@ const cliProgress = require('cli-progress')
 
 let progressBar
 
-function doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount = 0, query = {}, batchCallBack, message}) {
+function doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount = 0, query = {}, batchCallBack, message, inSequence = false}) {
   if(message) {
     console.log(message)
   }
@@ -15,22 +15,26 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
       .then(batchItems => {
         if (batchItems.length) {
           doneCount += batchItems.length
-          const promises = []
           if (batchCallBack) {
             batchCallBack(doneCount)
           }
-          reportUpdate({doneCount, limit})
-          for (const record of batchItems) {
-            promises.push(callbackFunction({record, collection}))
-          }
           startFromId = batchItems[batchItems.length - 1]._id
-          return Promise.all(promises)
+          if (inSequence) {
+            return runInSequence({callbackFunction, collection, batchItems})
+          } else {
+            const promises = []
+            for (const record of batchItems) {
+              promises.push(callbackFunction({record, collection}))
+            }
+            return Promise.all(promises)
+          }
         } else {
           endUpdate()
           resolve(doneCount)
         }
       })
       .then(() => {
+        reportUpdate({doneCount, limit})
         if (doneCount < limit) {
           resolve(doInBatches(callbackFunction, {
             collection,
@@ -39,7 +43,8 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
             batchSize,
             limit,
             query,
-            batchCallBack
+            batchCallBack,
+            inSequence
           }))
         } else {
           endUpdate()
@@ -50,7 +55,9 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
 }
 
 function endUpdate() {
-  progressBar.stop()
+  if (progressBar) {
+    progressBar.stop()
+  }
   progressBar = undefined
 }
 
@@ -81,6 +88,23 @@ function reportUpdate({doneCount, limit}) {
     progressBar.start(limit, 0)
   }
   progressBar.update(doneCount)
+}
+
+function runInSequence({callbackFunction, collection, batchItems, startFromIndex: index = 0}) {
+  return new Promise((resolve, reject) => {
+    if (batchItems.length > index) {
+      callbackFunction({record: batchItems[index], collection})
+        .catch(error => {
+          console.error(error)
+          resolve(runInSequence({callbackFunction, batchItems, startFromIndex: index + 1}))
+        })
+        .then(() => {
+          resolve(runInSequence({callbackFunction, batchItems, startFromIndex: index + 1}))
+        })
+    } else {
+      resolve(index)
+    }
+  })
 }
 
 module.exports = {
