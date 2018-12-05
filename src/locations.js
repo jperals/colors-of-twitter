@@ -6,6 +6,7 @@ const {doInBatches} = require('./db.js')
 
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
+const minTweetLength = Number(process.env.MIN_TWEET_LENGTH)
 
 let db
 let srcCollection
@@ -58,7 +59,7 @@ MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
 function collectLocation({record}) {
   return new Promise((resolve, reject) => {
     const boundingBoxId = getBoundingBoxId(record)
-    if (boundingBoxId) {
+    if (boundingBoxId && record.tweet.text.length >= minTweetLength) {
       Promise.all([
         targetCollection.findOne({
           boundingBoxId
