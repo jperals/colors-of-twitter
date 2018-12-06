@@ -2,11 +2,23 @@ const cliProgress = require('cli-progress')
 
 let progressBar
 
-function doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount = 0, query = {}, batchCallBack, message, inSequence = false}) {
+function doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount = 0, query = {}, batchCallBack, message, inSequence = false, firstCall = true, live = false}) {
   if(message) {
     console.log(message)
   }
   return new Promise((resolve, reject) => {
+    if(firstCall && !live) {
+      // If the collection is shorter than the limit,
+      // adapt the limit so we can report accordingly.
+      // If you want to avoid this behavior because the database might be updating
+      // while retrieving documents, pass the `live` argument as true.
+      collection.countDocuments()
+        .then(nDocuments => {
+          limit = Math.min(limit, nDocuments)
+          resolve(doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount, query, batchCallBack, message, inSequence, firstCall: false}))
+        })
+      return
+    }
     getRecordBatch({collection, startFromId, batchSize, query})
       .catch(err => {
         endUpdate()
@@ -44,7 +56,8 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
             limit,
             query,
             batchCallBack,
-            inSequence
+            inSequence,
+            firstCall: false
           }))
         } else {
           endUpdate()
