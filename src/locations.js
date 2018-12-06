@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const cld = require('cld')
+const parseArgs = require('minimist')
 const MongoClient = require('mongodb').MongoClient
 const {doInBatches} = require('./db.js')
 
@@ -9,12 +10,10 @@ const limit = Number(process.env.LIMIT)
 const minTweetLength = Number(process.env.MIN_TWEET_LENGTH)
 
 let db
-let srcCollection
 let targetCollection
 
 connectToDatabase()
-  .catch(handleError)
-  .then(initCollections)
+  .catch(handleRejection)
   .then(initTargetCollection)
   .then(collectLocations)
   .then(reportCount)
@@ -25,26 +24,53 @@ function connectToDatabase() {
   return MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
 }
 
-function handleError(error) {
+function handleRejection(error) {
   console.error(error)
   process.exit(1)
 }
 
-function initCollections(client) {
+function initTargetCollection(client) {
   db = client.db(process.env.DATABASE_NAME)
   console.log('Connected to the database')
-  srcCollection = db.collection(process.env.COLLECTION_TWEETS)
-  targetCollection = db.collection(process.env.COLLECTION_LOCATIONS)
-  console.log('Cleaning up locations first...')
-  return targetCollection.deleteMany({})
+  const collectionName = process.env.COLLECTION_LOCATIONS
+  return createIfNotExists(db, collectionName)
+    .then(cleanIfDesired)
+    .then(assignGlobal)
 }
 
-function initTargetCollection() {
-  targetCollection = db.collection(process.env.COLLECTION_LOCATIONS)
-  return targetCollection.createIndex({'boundingBoxId': 1}, {unique: true})
+function createIfNotExists(db, collectionName) {
+  return new Promise((resolve, reject) => {
+    const exists = db.listCollections({name: collectionName}).hasNext()
+    const collection = db.collection(collectionName)
+    if (exists) {
+      resolve(collection)
+    } else {
+      resolve(db.collection(collectionName)
+        .createIndex({'boundingBoxId': 1}, {unique: true}))
+    }
+  })
+}
+
+function cleanIfDesired(collection) {
+  if (parseArgs(process.argv.slice(2)).clean) {
+    console.log('Cleaning up locations first...')
+    return collection.deleteMany({})
+  } else {
+    return new Promise((resolve, reject) => {
+      resolve(collection)
+    })
+  }
+}
+
+function assignGlobal(collection) {
+  targetCollection = collection
+  return new Promise((resolve) => {
+    resolve()
+  })
 }
 
 function collectLocations() {
+  const srcCollection = db.collection(process.env.COLLECTION_TWEETS)
   return doInBatches(collectLocation, {
     collection: srcCollection,
     limit,
