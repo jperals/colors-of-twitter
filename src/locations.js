@@ -12,49 +12,67 @@ let db
 let srcCollection
 let targetCollection
 
-MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
-  .catch(err => {
-    console.error(err)
-    process.exit(1)
+connectToDatabase()
+  .catch(handleError)
+  .then(initCollections)
+  .then(initTargetCollection)
+  .then(collectLocations)
+  .then(reportCount)
+  .then(calculateMainLanguages)
+  .then(finish)
+
+function connectToDatabase() {
+  return MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
+}
+
+function handleError(error) {
+  console.error(error)
+  process.exit(1)
+}
+
+function initCollections(client) {
+  db = client.db(process.env.DATABASE_NAME)
+  console.log('Connected to the database')
+  srcCollection = db.collection(process.env.COLLECTION_TWEETS)
+  targetCollection = db.collection(process.env.COLLECTION_LOCATIONS)
+  console.log('Cleaning up locations first...')
+  return targetCollection.deleteMany({})
+}
+
+function initTargetCollection() {
+  targetCollection = db.collection(process.env.COLLECTION_LOCATIONS)
+  return targetCollection.createIndex({'boundingBoxId': 1}, {unique: true})
+}
+
+function collectLocations() {
+  return doInBatches(collectLocation, {
+    collection: srcCollection,
+    limit,
+    batchSize,
+    message: 'Collecting unique locations...',
+    inSequence: true
   })
-  .then(client => {
-    db = client.db(process.env.DATABASE_NAME)
-    console.log('Connected to the database')
-    srcCollection = db.collection(process.env.COLLECTION_TWEETS)
-    targetCollection = db.collection(process.env.COLLECTION_LOCATIONS)
-    console.log('Cleaning up locations first...')
-    return targetCollection.deleteMany({})
+}
+
+function reportCount(inspected) {
+  console.log('Inspected', inspected, 'tweets.')
+  return targetCollection.countDocuments()
+}
+
+function calculateMainLanguages(nDocuments) {
+  console.log('Found ' + nDocuments + ' unique locations.')
+  return doInBatches(calculateMainLanguage, {
+    collection: targetCollection,
+    batchSize,
+    limit: Math.min(limit, nDocuments),
+    message: 'Calculating main language for each location...'
   })
-  .then(() => {
-    targetCollection = db.collection(process.env.COLLECTION_LOCATIONS)
-    return targetCollection.createIndex({'boundingBoxId': 1}, {unique: true})
-  })
-  .then(() => {
-    return doInBatches(collectLocation, {
-      collection: srcCollection,
-      limit,
-      batchSize,
-      message: 'Collecting unique locations...',
-      inSequence: true
-    })
-  })
-  .then(inspected => {
-    console.log('Inspected', inspected, 'tweets.')
-    return targetCollection.countDocuments()
-  })
-  .then(nDocuments => {
-    console.log('Found ' + nDocuments + ' unique locations.')
-    return doInBatches(calculateMainLanguage, {
-      collection: targetCollection,
-      batchSize,
-      limit: Math.min(limit, nDocuments),
-      message: 'Calculating main language for each location...'
-    })
-  })
-  .then(inserted => {
-    console.log('Done.')
-    process.exit(0)
-  })
+}
+
+function finish() {
+  console.log('Done.')
+  process.exit(0)
+}
 
 function collectLocation({record}) {
   return new Promise((resolve, reject) => {
