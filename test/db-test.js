@@ -22,7 +22,7 @@ describe('doInBatches', () => {
       })
       .then(client => {
         const db = client.db(process.env.DATABASE_NAME)
-        const collection = db.collection(process.env.COLLECTION_TWEETS)
+        const collection = db.collection(process.env.COLLECTION_TEST)
         return doInBatches(countUp, {collection, limit, batchSize})
       })
       .then(count => {
@@ -34,6 +34,7 @@ describe('doInBatches', () => {
     const limit = 100
     const batchSize = 20
     const ids = []
+
     function collectId({record}) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -42,22 +43,44 @@ describe('doInBatches', () => {
         }, Math.random() * 100)
       })
     }
+
     MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
       .catch(err => {
         done(err)
       })
       .then(client => {
         const db = client.db(process.env.DATABASE_NAME)
-        const collection = db.collection(process.env.COLLECTION_TWEETS)
+        const collection = db.collection(process.env.COLLECTION_TEST)
         return doInBatches(collectId, {collection, limit, batchSize, inSequence: true})
       })
       .then(count => {
         let sorted = true
-        for(let i = 1; i < ids.length; i++) {
+        for (let i = 1; i < ids.length; i++) {
           sorted = sorted && ids[i] > ids[i - 1]
         }
         assert(sorted)
         done()
       })
   }).timeout(10000)
+  it('should run synchronous functions as well', done => {
+    const limit = 100
+    const batchSize = 20
+    let count = 0
+    function countUpSync() {
+      count += 1
+    }
+    MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
+      .catch(err => {
+        done(err)
+      })
+      .then(client => {
+        const db = client.db(process.env.DATABASE_NAME)
+        const collection = db.collection(process.env.COLLECTION_TEST)
+        return doInBatches(countUpSync, {collection, limit, batchSize})
+      })
+      .then(count => {
+        assert.equal(count, limit)
+        done()
+      })
+  }).timeout(5000)
 })
