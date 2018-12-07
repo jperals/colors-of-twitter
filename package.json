@@ -7,6 +7,7 @@
     "add-bounding-box-id": "node src/add-bounding-box-id.js",
     "add-language-data-cld": "node src/add-language-data-cld.js",
     "draw": "node src/draw.js",
+    "legend": "node src/legend.js",
     "locations": "node src/locations.js",
     "test": "mocha test/*"
   },
@@ -20,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "canvas": "^2.2.0",
+    "chalk": "^2.4.1",
     "cld": "^2.4.8",
     "cli-progress": "^2.1.0",
     "color-hash": "^1.0.3",

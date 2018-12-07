@@ -1,20 +1,22 @@
 require('dotenv').config()
 
 const {createCanvas} = require('canvas')
+const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const fs = require('fs')
 const languageColor = require('./language-color')
 const leftPad = require('left-pad')
-const MongoClient = require('mongodb').MongoClient
+const parseArgs = require('minimist')
 const Voronoi = require('voronoi')
 
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
 const width = Number(process.env.WIDTH)
 const height = Number(process.env.HEIGHT)
+let excludedLanguages
 
 const canvas = createCanvas(width, height)
 const ctx = canvas.getContext('2d')
-
+const languageIdentificationEngine = 'cld'
 let drawnItems = 0
 
 connectToDatabase()
@@ -23,18 +25,16 @@ connectToDatabase()
   .then(drawToFile)
   .then(finish)
 
-function connectToDatabase() {
-  return MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
-}
-
-function handleRejection(error) {
-  console.error(error)
-  process.exit(1)
-}
-
 function generateVoronoiDiagram(client) {
   {
     const db = client.db(process.env.DATABASE_NAME)
+    const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude
+    if (excludedLanguagesStr) {
+      excludedLanguages = excludedLanguagesStr.split(',')
+      if (excludedLanguages && excludedLanguages.length) {
+        console.log('Excluding languages:', excludedLanguages.join(', '))
+      }
+    }
     console.log('Connected to the database')
     console.log('Retrieving and drawing records...')
     const collection = db.collection(process.env.COLLECTION_LOCATIONS)
@@ -64,18 +64,20 @@ function addVoronoiSites({collection, batchSize, limit, added = 0, sites = [], s
 function addVoronoiSite(sites, item) {
   const coordinates = getRecordMiddlePointCoordinate(item)
   const color = getColor(item)
-  sites.push({
-    x: coordinates.lng,
-    y: coordinates.lat,
-    color
-  })
+  if (color) {
+    sites.push({
+      x: coordinates.lng,
+      y: coordinates.lat,
+      color
+    })
+    drawnItems += 1
+  }
 }
 
 function addVoronoiSiteBatch(sites, items) {
   process.stdout.write('.')
   for (const item of items) {
     addVoronoiSite(sites, item)
-    drawnItems += 1
   }
 }
 
@@ -87,7 +89,8 @@ function drawToFile(voronoiSites) {
     console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
     drawVoronoiDiagram(ctx, diagram)
     return exportPng(canvas, voronoiSites.length)
-  }}
+  }
+}
 
 function computeVoronoiDiagram(sites) {
   const boundingBox = {
@@ -116,31 +119,7 @@ function draw(ctx, items) {
   }
 }
 
-function finish () {
-  console.log('Done.')
-  process.exit(0)
-}
-
-function drawRecords({collection, ctx, id, batchSize, limit, drawn = 0}) {
-  return new Promise((resolve, reject) => {
-    getRecordBatch({collection, id, batchSize})
-      .catch(err => {
-        reject(err)
-      })
-      .then(pageItems => {
-        draw(ctx, pageItems)
-        drawn += pageItems.length
-        if (pageItems.length && drawn < limit) {
-          const lastId = pageItems[pageItems.length - 1]._id
-          resolve(drawRecords({collection, ctx, id: lastId, batchSize, limit, drawn}))
-        } else {
-          resolve(drawn)
-        }
-      })
-  })
-}
-
-function drawVoronoiDiagram (ctx, diagram) {
+function drawVoronoiDiagram(ctx, diagram) {
   const factorX = width / 360
   const factorY = height / 180
   for (const cell of diagram.cells) {
@@ -173,7 +152,7 @@ function exportPng(canvas, nPoints) {
 function getFileName(nPoints) {
   const now = new Date()
   let fileName = now.getFullYear() + '' + leftPad((now.getMonth() + 1), 2, '0') + '' + leftPad(now.getDate(), 2, '0') + '-' + now.getTime()
-  if(typeof nPoints !== 'undefined') {
+  if (typeof nPoints !== 'undefined') {
     fileName += '-' + nPoints + 'points'
   }
   return './output/map-' + fileName + '.png'
@@ -181,11 +160,28 @@ function getFileName(nPoints) {
 
 function getColor(record) {
   try {
-    const languageCode = record.languageData.cld.mainLanguage
-    if(!languageCode) return
+    const languageCode = getLanguage(record)
+    if (!languageCode) return
     return languageColor(languageCode)
   } catch (e) {
     return
+  }
+}
+
+function getLanguage(record) {
+  const languageData = record.languageData[languageIdentificationEngine]
+  const mainLanguage = languageData.mainLanguage
+  if (excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(mainLanguage) !== -1) {
+    const languagesObj = languageData.languages
+    const languageCodesSorted = Object.keys(languagesObj).sort((key1, key2) => languagesObj[key2].score - languagesObj[key1].score)
+    for (const languageCode of languageCodesSorted) {
+      if (excludedLanguages.indexOf(languageCode) === -1) {
+        return languageCode
+      }
+    }
+    return
+  } else {
+    return mainLanguage
   }
 }
 
