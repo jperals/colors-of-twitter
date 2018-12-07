@@ -1,11 +1,12 @@
 {
   "name": "birdhouse",
   "version": "1.0.0",
-  "description": "Generates a language map from Twitter data",
+  "description": "Generates language maps from Twitter data",
   "main": "index.js",
   "scripts": {
     "add-bounding-box-id": "node src/add-bounding-box-id.js",
     "add-language-data-cld": "node src/add-language-data-cld.js",
+    "collect": "node src/collect-tweets.js",
     "draw": "node src/draw.js",
     "legend": "node src/legend.js",
     "locations": "node src/locations.js",
@@ -29,6 +30,7 @@
     "left-pad": "^1.3.0",
     "minimist": "^1.2.0",
     "mongodb": "^3.1.10",
+    "twitter": "^1.7.1",
     "voronoi": "^1.0.0"
   },
   "eslintConfig": {

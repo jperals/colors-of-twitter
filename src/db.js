@@ -105,7 +105,9 @@ function reportUpdate({doneCount, estimatedCount}) {
     progressBar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
     progressBar.start(estimatedCount, doneCount)
   }
-  progressBar.update(doneCount)
+  if(progressBar) {
+    progressBar.update(doneCount)
+  }
 }
 
 function runInSequence({callbackFunction, collection, batchItems, startFromIndex: index = 0}) {
