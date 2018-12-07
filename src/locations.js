@@ -51,6 +51,7 @@ function createIfNotExists(db, collectionName) {
   })
 }
 
+// If a `clean` argument was passed, clean up the database (empty it) before adding the new records
 function cleanIfDesired(collection) {
   if (parseArgs(process.argv.slice(2)).clean) {
     console.log('Cleaning up locations first...')
@@ -70,7 +71,9 @@ function assignGlobal(collection) {
 }
 
 function collectLocations() {
-  const srcCollection = db.collection(process.env.COLLECTION_TWEETS)
+  const srcCollectionName = process.env.COLLECTION_TWEETS
+  console.log('Using collection', srcCollectionName)
+  const srcCollection = db.collection(srcCollectionName)
   return doInBatches(collectLocation, {
     collection: srcCollection,
     limit,
