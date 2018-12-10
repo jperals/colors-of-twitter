@@ -13,7 +13,7 @@ const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
 // Minimum tweets collected per location in order to include it in the map
 const minTweets = 0
-// Mininum number of tweets in relation of number of languages for each location
+// Minimum number of tweets in relation of number of languages for each location
 const minTweetsPerNumberOfLanguages = 1.5
 const width = Number(process.env.WIDTH)
 const height = Number(process.env.HEIGHT)
