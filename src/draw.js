@@ -1,19 +1,22 @@
 require('dotenv').config()
 
 const {createCanvas} = require('canvas')
-const {doInBatches} = require('./db')
 const {connectToDatabase, finish, handleRejection} = require('./common.js')
+const {doInBatches} = require('./db')
+const {getLanguageFences} = require('./fences')
 const fs = require('fs')
 const languageColor = require('./language-color')
 const leftPad = require('left-pad')
 const parseArgs = require('minimist')
+const pointInPolygon = require('@turf/boolean-point-in-polygon').default
+const turf = require('@turf/helpers')
 const Voronoi = require('voronoi')
 
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
 // Minimum tweets collected per location in order to include it in the map
 const minTweets = 0
-// Minimum number of tweets in relation of number of languages for each location
+// Minimum number of tweets in relation to number of languages for each location
 const minTweetsPerNumberOfLanguages = 1.5
 const width = Number(process.env.WIDTH)
 const height = Number(process.env.HEIGHT)
@@ -58,16 +61,18 @@ function addVoronoiSites({collection, batchSize, limit}) {
 
 function addVoronoiSite(sites, item) {
   const coordinates = getRecordMiddlePointCoordinate(item)
-  const color = getColor(item)
-  if (color) {
-    sites.push({
-      x: coordinates.lng,
-      y: coordinates.lat,
-      color
+  return getColor(item)
+    .then(color => {
+      if (color) {
+        sites.push({
+          x: coordinates.lng,
+          y: coordinates.lat,
+          color
+        })
+        drawnItems += 1
+      }
+      return sites
     })
-    drawnItems += 1
-  }
-  return sites
 }
 
 function drawToFile(voronoiSites) {
@@ -132,30 +137,57 @@ function getFileName(nPoints) {
 }
 
 function getColor(record) {
-  try {
-    const languageCode = getLanguage(record)
-    if (!languageCode) return
-    return languageColor(languageCode)
-  } catch (e) {
-    return
-  }
+  return getLanguage(record)
+    .then(languageCode => {
+      if (!languageCode) return
+      return languageColor(languageCode)
+    })
+    .catch((err) => {
+      return
+    })
 }
 
 function getLanguage(record) {
-  if(!hasEnoughData(record)) return
+  if (!hasEnoughData(record)) return
   const languageData = record.languageData[languageIdentificationEngine]
   const mainLanguage = languageData.mainLanguage
-  if (excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(mainLanguage) !== -1) {
-    const languagesObj = languageData.languages
-    const languageCodesSorted = Object.keys(languagesObj).sort((key1, key2) => languagesObj[key2].score - languagesObj[key1].score)
-    for (const languageCode of languageCodesSorted) {
-      if (excludedLanguages.indexOf(languageCode) === -1) {
-        return languageCode
+  const coordinateLatLng = getRecordMiddlePointCoordinate(record)
+  const coordinateXY = [coordinateLatLng.lng, coordinateLatLng.lat]
+  return isOutsideItsFences(coordinateXY, mainLanguage)
+    .then(isOutside => {
+      if (!isExcluded(mainLanguage) && !isOutside) {
+        return mainLanguage
+      } else {
+        // Find an alternative language from the list of detected
+        // languages for this location
+        const languagesObj = languageData.languages
+        // Sort them by score and return the first viable one
+        const languageCodesSorted = Object.keys(languagesObj).sort((key1, key2) => languagesObj[key2].score - languagesObj[key1].score)
+        return getAlternativeLanguage({coordinateXY, languageCodes: languageCodesSorted})
       }
-    }
+    })
+}
+
+function getAlternativeLanguage({coordinateXY, languageCodes, index = 0}) {
+  const languageCode = languageCodes[index]
+  if (languageCodes.length <= index) {
+    // No viable alternative was found
     return
+  }
+  if (isExcluded(languageCode)) {
+    // Try the next one
+    return getAlternativeLanguage({coordinateXY, languageCodes, index: index + 1})
   } else {
-    return mainLanguage
+    return isOutsideItsFences(coordinateXY, languageCode)
+      .then(isOutside => {
+        if (isOutside) {
+          // Try the next one
+          return getAlternativeLanguage({coordinateXY, languageCodes, index: index + 1})
+        } else {
+          // Good alternative
+          return languageCode
+        }
+      })
   }
 }
 
@@ -190,4 +222,28 @@ function hasEnoughData(record) {
     return record.nTweets > 1 && record.nTweets / languageKeys.length > minTweetsPerNumberOfLanguages
   }
   return false
+}
+
+function isOutsideItsFences(coordinate, languageCode) {
+  return getLanguageFences(languageCode)
+    .then(fences => {
+      for (const feature of fences.features) {
+        const point = turf.point(coordinate)
+        if (feature.geometry && feature.geometry.type === 'Polygon' && pointInPolygon(point, feature)) {
+          return false
+        }
+      }
+      return true
+    })
+    .catch((err) => {
+      return false
+    })
+}
+
+function getRecordMainLanguage(record) {
+  return record.languageData[languageIdentificationEngine].mainLanguage
+}
+
+function isExcluded(language) {
+  return excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(language) !== -1
 }
