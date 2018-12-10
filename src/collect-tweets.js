@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const leftPad = require('left-pad')
+const moment = require('moment')
 const Twitter = require('twitter')
 const {connectToDatabase, handleRejection} = require('./common.js')
 
@@ -31,6 +32,7 @@ function initStream() {
 }
 
 function collectTweets([dbClient, stream]) {
+  let nRecords = 0
   const db = dbClient.db(process.env.DATABASE_NAME)
   console.log('Connected to database')
   const collectionName = getCollectionName()
@@ -43,6 +45,9 @@ function collectTweets([dbClient, stream]) {
         collection.insertOne({
           tweet: event
         })
+          .then(() => {
+            nRecords += 1
+          })
       }
     } catch(error) {
       console.error(error)
@@ -51,6 +56,10 @@ function collectTweets([dbClient, stream]) {
   stream.on('error', (error) => {
     console.error(error)
   })
+  const initialTime = moment()
+  setInterval(() => {
+    printProgress({initialTime, nRecords})
+  }, 1000)
 }
 
 function getCollectionName() {
@@ -61,4 +70,21 @@ function getCollectionName() {
 
 function isTweet(event) {
   return event && typeof event.text === 'string'
+}
+
+function printProgress({initialTime, nRecords}){
+  const nStr = nRecords.toLocaleString()
+  const now = moment()
+  const elapsedTimeStr = now.from(initialTime)
+  const elapedTimeMs = now - initialTime
+  const tweetsPerSecond = nRecords / (elapedTimeMs/1000)
+  process.stdout.clearLine()
+  process.stdout.cursorTo(0)
+  process.stdout.write('Collected ' + nStr + ' tweets ' + elapsedTimeStr + ' (' + nDecimals(tweetsPerSecond, 2) + ' tweets per second).')
+}
+
+function nDecimals (n, decimals = 2) {
+  if (typeof n !== 'number') return n
+  const factor = Math.pow(10, decimals)
+  return Math.round(n * factor) / factor
 }
