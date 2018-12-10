@@ -2,12 +2,12 @@ const cliProgress = require('cli-progress')
 
 let progressBar
 
-function doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount = 0, query = {}, batchCallBack, message, inSequence = false, firstCall = true, live = false, estimatedCount}) {
-  if(message) {
+function doInBatches(callbackFunction, {collection, startFromId, batchSize = 1000, limit = Infinity, doneCount = 0, query = {}, batchCallBack, message, inSequence = false, firstCall = true, live = false, estimatedCount, reportProgress = true}) {
+  if (message) {
     console.log(message)
   }
   return new Promise((resolve, reject) => {
-    if(firstCall && !live) {
+    if (firstCall && !live) {
       // If the collection is shorter than the limit,
       // adapt the limit so we can report accordingly.
       // If you want to avoid this behavior because the database might be updating
@@ -15,7 +15,19 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
       collection.estimatedDocumentCount()
         .then(nDocuments => {
           estimatedCount = Math.min(limit, nDocuments)
-          resolve(doInBatches(callbackFunction, {collection, startFromId, batchSize, limit, doneCount, query, batchCallBack, inSequence, firstCall: false, estimatedCount}))
+          resolve(doInBatches(callbackFunction, {
+            collection,
+            startFromId,
+            batchSize,
+            limit,
+            doneCount,
+            query,
+            batchCallBack,
+            inSequence,
+            firstCall: false,
+            estimatedCount,
+            reportProgress
+          }))
         })
       return
     }
@@ -41,7 +53,7 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
             if (calls.length && calls[0] && typeof calls[0].then === 'function') {
               return Promise.all(calls)
             } else {
-              return
+              return calls[calls.length - 1]
             }
           }
         } else {
@@ -49,8 +61,10 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
           resolve(doneCount)
         }
       })
-      .then(() => {
-        reportUpdate({doneCount, estimatedCount})
+      .then(result => {
+        if (reportProgress) {
+          reportUpdate({doneCount, estimatedCount})
+        }
         if (doneCount < limit) {
           resolve(doInBatches(callbackFunction, {
             collection,
@@ -62,7 +76,8 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize, limi
             batchCallBack,
             inSequence,
             firstCall: false,
-            estimatedCount
+            estimatedCount,
+            reportProgress
           }))
         } else {
           endUpdate()
@@ -105,15 +120,17 @@ function reportUpdate({doneCount, estimatedCount}) {
     progressBar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
     progressBar.start(estimatedCount, doneCount)
   }
-  if(progressBar) {
+  if (progressBar) {
     progressBar.update(doneCount)
   }
 }
 
-function runInSequence({callbackFunction, collection, batchItems, startFromIndex: index = 0}) {
+function runInSequence({callbackFunction, collection, batchItems, startFromIndex}) {
+  const index = typeof startFromIndex === 'undefined' ? 0 : startFromIndex
   return new Promise((resolve, reject) => {
     if (batchItems.length > index) {
-      callbackFunction({record: batchItems[index], collection})
+      const record = batchItems[index]
+      callbackFunction({record, collection})
         .catch(error => {
           console.error(error)
           resolve(runInSequence({callbackFunction, batchItems, startFromIndex: index + 1}))
