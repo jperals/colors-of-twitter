@@ -15,6 +15,7 @@ let targetCollection
 connectToDatabase()
   .catch(handleRejection)
   .then(initTargetCollection)
+  .then(assignGlobal)
   .then(collectLocations)
   .then(reportCount)
   .then(calculateMainLanguages)
@@ -33,46 +34,33 @@ function initTargetCollection(client) {
   db = client.db(process.env.DATABASE_NAME)
   console.log('Connected to the database')
   const collectionName = process.env.COLLECTION_LOCATIONS
-  return createIfNotExists(db, collectionName)
-    .then(cleanIfDesired)
-    .then(assignGlobal)
-}
-
-function createIfNotExists(db, collectionName) {
-  return new Promise((resolve, reject) => {
-    const exists = db.listCollections({name: collectionName}).hasNext()
-    const collection = db.collection(collectionName)
-    if (exists) {
-      resolve(collection)
-    } else {
-      resolve(db.collection(collectionName)
-        .createIndex({'boundingBoxId': 1}, {unique: true}))
-    }
-  })
-}
-
-// If a `clean` argument was passed, clean up the database (empty it) before adding the new records
-function cleanIfDesired(collection) {
-  if (parseArgs(process.argv.slice(2)).clean) {
-    console.log('Cleaning up locations first...')
-    return collection.deleteMany({})
-  } else {
-    return new Promise((resolve, reject) => {
-      resolve(collection)
+  return db.listCollections({name: collectionName}).hasNext()
+    .then(exists => {
+      if (exists) {
+        const collection = db.collection(collectionName)
+        if (cleanParam()) {
+          // If a `clean` argument was passed, clean up the database (empty it) before adding the new records
+          console.log('Cleaning up locations first...')
+          return collection.deleteMany({})
+        } else {
+          return collection
+        }
+      } else {
+        console.log('Creating collection ' + collectionName + '...')
+        return db.collection(collectionName)
+          .createIndex({'boundingBoxId': 1}, {unique: true})
+      }
     })
-  }
 }
 
-function assignGlobal(collection) {
-  targetCollection = collection
-  return new Promise((resolve) => {
-    resolve()
-  })
+function assignGlobal() {
+  const targetCollectionName = process.env.COLLECTION_LOCATIONS
+  targetCollection = db.collection(targetCollectionName)
 }
 
 function collectLocations() {
   const srcCollectionName = process.env.COLLECTION_TWEETS
-  console.log('Using collection', srcCollectionName)
+  console.log('Reading from collection', srcCollectionName)
   const srcCollection = db.collection(srcCollectionName)
   return doInBatches(collectLocation, {
     collection: srcCollection,
@@ -114,23 +102,36 @@ function collectLocation({record}) {
         detectLanguage(record.tweet.text)
       ])
         .then(([foundRecord, languageData]) => {
-          let languages
-          if (foundRecord) {
-            languages = combineLanguageData(foundRecord.languageData.cld.languages, languageData)
+          if(!languageData) {
+            resolve()
+            return
+          }
+          let setObj
+          if(foundRecord) {
+            setObj = {
+              languageData: {
+                cld: {
+                  languages: combineLanguageData(foundRecord.languageData.cld.languages, languageData)
+                }
+              }
+            }
           } else {
-            languages = arrayToObject(languageData.languages, {key: 'code'})
+            setObj = {
+              languageData: {
+                cld: {
+                  languages: arrayToObject(languageData.languages, {key: 'code'})
+                }
+              },
+              placeName: record.tweet.place.full_name
+            }
           }
           resolve(targetCollection.findOneAndUpdate({
               boundingBoxId
             },
             {
-              "$set": {
-                boundingBoxId,
-                languageData: {
-                  cld: {
-                    languages
-                  }
-                }
+              $set: setObj,
+              $inc: {
+                nTweets: 1
               }
             },
             {
@@ -139,7 +140,10 @@ function collectLocation({record}) {
             })
           )
         })
-        .catch(resolve)
+        .catch((error) => {
+          console.error(error)
+          resolve()
+        })
     } else {
       resolve()
     }
@@ -170,14 +174,24 @@ function calculateMainLanguage({collection, record}) {
 
 function combineLanguageData(existingData, newData) {
   const combinedData = {}
-  for (const languageCode in existingData) {
-    combinedData[languageCode].score = existingData[languageCode].score
-  }
-  for (const dataSet of newData.languages) {
-    combinedData[dataSet.code].score = dataSet.score
-    if (existingData[dataSet.code]) {
-      combinedData[dataSet.code].score += existingData[dataSet.code].score
+  try {
+    // Manual shallow copy, but just interested in the `score` field of each data set
+    for (const languageCode of Object.keys(existingData)) {
+      combinedData[languageCode] = {
+        score: existingData[languageCode].score
+      }
     }
+    for (const dataSet of newData.languages) {
+      if (existingData[dataSet.code]) {
+        combinedData[dataSet.code].score += dataSet.score
+      } else {
+        combinedData[dataSet.code] = {
+          score: dataSet.score
+        }
+      }
+    }
+  } catch(err) {
+    console.log(err)
   }
   return combinedData
 }
@@ -186,8 +200,11 @@ function combineLanguageData(existingData, newData) {
 function detectLanguage(text) {
   return new Promise((resolve, reject) => {
     cld.detect(text, (err, result) => {
+      // Also resolve on error because we don't want to log an error
+      // every time the translation fails. That's okay.
+      resolve(result)
       if (err) {
-        reject(err)
+        resolve()
       } else {
         resolve(result)
       }
@@ -205,4 +222,10 @@ function getBoundingBoxId(record) {
 
 function getMainLanguage(languageData) {
   return Object.keys(languageData).sort((key1, key2) => languageData[key2].score - languageData[key1].score)[0]
+}
+
+// Wether a `clean` parameter was passed, indicating that the collection
+// should be cleaned (emptied) before adding new records
+function cleanParam() {
+  return parseArgs(process.argv.slice(2)).clean
 }
