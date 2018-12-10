@@ -6,7 +6,9 @@ const chalk = require('chalk')
 const cld = require('cld')
 const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const {doInBatches} = require('./db.js')
+const jsonfile = require('jsonfile')
 const languageColor = require('./language-color')
+const parseArgs = require('minimist')
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
 const languageIdentificationEngine = 'cld'
@@ -30,11 +32,11 @@ function getLanguages(dbClient) {
   })
 }
 
-function addLocationLanguage ({record}) {
+function addLocationLanguage({record}) {
   try {
     const languageCode = record.languageData[languageIdentificationEngine].mainLanguage
     languageCodes.add(languageCode)
-  } catch(error) {
+  } catch (error) {
     return
   }
 }
@@ -45,7 +47,7 @@ function getLanguageName(languageCode) {
   return capitalize(str)
 }
 
-function getLegend (languageCodes) {
+function getLegend(languageCodes) {
   const languageColors = {}
   for (const languageCode of languageCodes) {
     languageColors[languageCode] = {
@@ -56,15 +58,20 @@ function getLegend (languageCodes) {
   return languageColors
 }
 
-function printLegend () {
+function printLegend() {
   const languageData = getLegend(languageCodes)
-  const sortedCodes = Array.from(languageCodes).sort()
-  for(const code of sortedCodes) {
-    const language = languageData[code]
-    const color = language.color
-    const name = language.name
-    const colorize = chalk.hex(color)
-    console.log(colorize('███'), name, '(' + code + '):', colorize(color))
+  const args = parseArgs(process.argv.slice(2))
+  if (args.json) {
+    return jsonfile.writeFile('./output/legend.json', languageData, {spaces: 2})
+  } else {
+    const sortedCodes = Array.from(languageCodes).sort()
+    for (const code of sortedCodes) {
+      const language = languageData[code]
+      const color = language.color
+      const name = language.name
+      const colorize = chalk.hex(color)
+      console.log(colorize('███'), name, '(' + code + '):', colorize(color))
+    }
   }
 }
 
@@ -75,7 +82,7 @@ function capitalize(str) {
   try {
     str = str.toLowerCase()
     return str.charAt(0).toUpperCase() + str.substring(1)
-  } catch(error) {
+  } catch (error) {
     return str
   }
 }
