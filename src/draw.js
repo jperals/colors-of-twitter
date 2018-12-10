@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 const {createCanvas} = require('canvas')
+const {doInBatches} = require('./db')
 const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const fs = require('fs')
 const languageColor = require('./language-color')
@@ -10,6 +11,10 @@ const Voronoi = require('voronoi')
 
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
+// Minimum tweets collected per location in order to include it in the map
+const minTweets = 0
+// Mininum number of tweets in relation of number of languages for each location
+const minTweetsPerNumberOfLanguages = 1.5
 const width = Number(process.env.WIDTH)
 const height = Number(process.env.HEIGHT)
 let excludedLanguages
@@ -26,37 +31,27 @@ connectToDatabase()
   .then(finish)
 
 function generateVoronoiDiagram(client) {
-  {
-    const db = client.db(process.env.DATABASE_NAME)
-    const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude
-    if (excludedLanguagesStr) {
-      excludedLanguages = excludedLanguagesStr.split(',')
-      if (excludedLanguages && excludedLanguages.length) {
-        console.log('Excluding languages:', excludedLanguages.join(', '))
-      }
+  const db = client.db(process.env.DATABASE_NAME)
+  const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude
+  if (excludedLanguagesStr) {
+    excludedLanguages = excludedLanguagesStr.split(',')
+    if (excludedLanguages && excludedLanguages.length) {
+      console.log('Excluding languages:', excludedLanguages.join(', '))
     }
-    console.log('Connected to the database')
-    console.log('Retrieving and drawing records...')
-    const collection = db.collection(process.env.COLLECTION_LOCATIONS)
-    return addVoronoiSites({collection, ctx, batchSize, limit})
   }
+  console.log('Connected to the database')
+  const collection = db.collection(process.env.COLLECTION_LOCATIONS)
+  return addVoronoiSites({collection, ctx, batchSize, limit})
 }
 
-function addVoronoiSites({collection, batchSize, limit, added = 0, sites = [], startFromId}) {
-  return new Promise((resolve, reject) => {
-    getRecordBatch({collection, id: startFromId, batchSize})
-      .catch(err => {
-        reject(err)
-      })
-      .then(batchItems => {
-        addVoronoiSiteBatch(sites, batchItems)
-        added += batchItems.length
-        if (batchItems.length && added < limit) {
-          const startFromId = batchItems[batchItems.length - 1]._id
-          resolve(addVoronoiSites({collection, batchSize, limit, added, startFromId, sites}))
-        } else {
-          resolve(sites)
-        }
+function addVoronoiSites({collection, batchSize, limit}) {
+  const sites = []
+  return new Promise((resolve) => {
+    doInBatches(({record}) => {
+      addVoronoiSite(sites, record)
+    }, {collection, batchSize, limit, message: 'Retrieving records...'})
+      .then(() => {
+        resolve(sites)
       })
   })
 }
@@ -72,24 +67,17 @@ function addVoronoiSite(sites, item) {
     })
     drawnItems += 1
   }
-}
-
-function addVoronoiSiteBatch(sites, items) {
-  process.stdout.write('.')
-  for (const item of items) {
-    addVoronoiSite(sites, item)
-  }
+  return sites
 }
 
 function drawToFile(voronoiSites) {
-  {
-    console.log('\nAdded', voronoiSites.length, 'Voronoi sites.')
-    const diagram = computeVoronoiDiagram(voronoiSites)
-    console.log('Calculated Voronoi diagram in', diagram.execTime, 'milliseconds.')
-    console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
-    drawVoronoiDiagram(ctx, diagram)
-    return exportPng(canvas, voronoiSites.length)
-  }
+  console.log('Added', voronoiSites.length, 'Voronoi sites.')
+  console.log('Computing Voronoi diagram...')
+  const diagram = computeVoronoiDiagram(voronoiSites)
+  console.log('Computing Voronoi diagram in', diagram.execTime, 'milliseconds.')
+  console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
+  drawVoronoiDiagram(ctx, diagram)
+  return exportPng(canvas, voronoiSites.length)
 }
 
 function computeVoronoiDiagram(sites) {
@@ -102,21 +90,6 @@ function computeVoronoiDiagram(sites) {
   const voronoi = new Voronoi()
   const diagram = voronoi.compute(sites, boundingBox)
   return diagram
-}
-
-function draw(ctx, items) {
-  for (const item of items) {
-    try {
-      const pixelPosition = getRecordPixelPosition(item)
-      const color = getColor(item)
-      if (!pixelPosition || !color) continue
-      ctx.fillStyle = color
-      ctx.fillRect(pixelPosition.x, pixelPosition.y, 1, 1)
-      drawnItems += 1
-    } catch (e) {
-      console.error(e)
-    }
-  }
 }
 
 function drawVoronoiDiagram(ctx, diagram) {
@@ -169,6 +142,7 @@ function getColor(record) {
 }
 
 function getLanguage(record) {
+  if(!hasEnoughData(record)) return
   const languageData = record.languageData[languageIdentificationEngine]
   const mainLanguage = languageData.mainLanguage
   if (excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(mainLanguage) !== -1) {
@@ -183,31 +157,6 @@ function getLanguage(record) {
   } else {
     return mainLanguage
   }
-}
-
-function getRecordBatch({collection, id, batchSize}) {
-  return new Promise((resolve, reject) => {
-    const queryString = typeof id === 'undefined' ? {} : {
-      _id: {
-        '$gt': id
-      },
-    }
-    collection.find(
-      queryString,
-      {
-        limit: batchSize,
-        sort: {
-          _id: 1
-        }
-      },
-      (err, items) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(items.toArray())
-        }
-      })
-  })
 }
 
 function getRecordBoundingBox(dbRecord) {
@@ -230,4 +179,15 @@ function getRecordPixelPosition(dbRecord) {
   const x = (width / 2) + (width / 2) * coords.lng / 180
   const y = (height / 2) - (height / 2) * coords.lat / 90
   return {x, y}
+}
+
+function hasEnoughData(record) {
+  if (!record.nTweets || record.nTweets >= minTweets) return true
+  else if (record.nTweets === minTweets) {
+    const languageData = record.languageData[languageIdentificationEngine]
+    const languagesObj = languageData.languages
+    const languageKeys = Object.keys(languagesObj)
+    return record.nTweets > 1 && record.nTweets / languageKeys.length > minTweetsPerNumberOfLanguages
+  }
+  return false
 }
