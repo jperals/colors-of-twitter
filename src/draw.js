@@ -23,17 +23,19 @@ const height = Number(process.env.HEIGHT)
 let excludedLanguages
 
 const canvas = createCanvas(width, height)
-const ctx = canvas.getContext('2d')
 const languageIdentificationEngine = 'cld'
 let drawnItems = 0
 
 connectToDatabase()
   .catch(handleRejection)
-  .then(generateVoronoiDiagram)
-  .then(drawToFile)
+  .then(getCollection)
+  .then(addPoints)
+  .then(computeVoronoiDiagram)
+  .then(drawToCanvas)
+  .then(exportPng)
   .then(finish)
 
-function generateVoronoiDiagram(client) {
+function getCollection(client) {
   const db = client.db(process.env.DATABASE_NAME)
   const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude
   if (excludedLanguagesStr) {
@@ -43,20 +45,18 @@ function generateVoronoiDiagram(client) {
     }
   }
   console.log('Connected to the database')
-  const collection = db.collection(process.env.COLLECTION_LOCATIONS)
-  return addVoronoiSites({collection, ctx, batchSize, limit})
+  return db.collection(process.env.COLLECTION_LOCATIONS)
 }
 
-function addVoronoiSites({collection, batchSize, limit}) {
+function addPoints(collection) {
   const sites = []
-  return new Promise((resolve) => {
-    doInBatches(({record}) => {
-      addVoronoiSite(sites, record)
-    }, {collection, batchSize, limit, message: 'Retrieving records...'})
-      .then(() => {
-        resolve(sites)
-      })
-  })
+  return doInBatches(({record}) => {
+    addVoronoiSite(sites, record)
+  }, {collection, batchSize, limit, message: 'Retrieving records...'})
+    .then(() => {
+      console.log('Added', sites.length, 'Voronoi sites.')
+      return sites
+    })
 }
 
 function addVoronoiSite(sites, item) {
@@ -75,17 +75,8 @@ function addVoronoiSite(sites, item) {
     })
 }
 
-function drawToFile(voronoiSites) {
-  console.log('Added', voronoiSites.length, 'Voronoi sites.')
-  console.log('Computing Voronoi diagram...')
-  const diagram = computeVoronoiDiagram(voronoiSites)
-  console.log('Computing Voronoi diagram in', diagram.execTime, 'milliseconds.')
-  console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
-  drawVoronoiDiagram(ctx, diagram)
-  return exportPng(canvas, voronoiSites.length)
-}
-
 function computeVoronoiDiagram(sites) {
+  console.log('Computing Voronoi diagram...')
   const boundingBox = {
     xl: -180,
     xr: 180,
@@ -94,10 +85,13 @@ function computeVoronoiDiagram(sites) {
   }
   const voronoi = new Voronoi()
   const diagram = voronoi.compute(sites, boundingBox)
+  console.log('Computed Voronoi diagram in', diagram.execTime, 'milliseconds.')
+  console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
   return diagram
 }
 
-function drawVoronoiDiagram(ctx, diagram) {
+function drawToCanvas(diagram) {
+  const ctx = canvas.getContext('2d')
   const factorX = width / 360
   const factorY = height / 180
   for (const cell of diagram.cells) {
@@ -114,9 +108,11 @@ function drawVoronoiDiagram(ctx, diagram) {
     ctx.closePath()
     ctx.fill()
   }
+  return diagram
 }
 
-function exportPng(canvas, nPoints) {
+function exportPng(diagram) {
+  const nPoints = diagram.cells.length
   return new Promise((resolve, reject) => {
     const fileName = getFileName(nPoints)
     console.log('Drawing to file:', fileName)
