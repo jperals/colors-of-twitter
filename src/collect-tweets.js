@@ -36,7 +36,7 @@ function collectTweets([dbClient, stream]) {
   const db = dbClient.db(process.env.DATABASE_NAME)
   console.log('Connected to database')
   const collectionName = getCollectionName()
-  console.log('Using collection', collectionName)
+  console.log('Writing to collection', collectionName)
   console.log('Collecting tweets...')
   const collection = db.collection(collectionName)
   stream.on('data', function (event) {
