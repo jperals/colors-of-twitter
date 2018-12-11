@@ -15,7 +15,7 @@ const Voronoi = require('voronoi')
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
 // Minimum tweets collected per location in order to include it in the map
-const minTweets = 0
+const minTweets = 2
 // Minimum number of tweets in relation to number of languages for each location
 const minTweetsPerNumberOfLanguages = 1.5
 const width = Number(process.env.WIDTH)
@@ -148,7 +148,7 @@ function getColor(record) {
 }
 
 function getLanguage(record) {
-  if (!hasEnoughData(record)) return
+  if (!hasEnoughData(record)) return new Promise((resolve) => resolve())
   const languageData = record.languageData[languageIdentificationEngine]
   const mainLanguage = languageData.mainLanguage
   const coordinateLatLng = getRecordMiddlePointCoordinate(record)
