@@ -205,14 +205,6 @@ function getRecordMiddlePointCoordinate(dbRecord) {
   return {lat, lng}
 }
 
-function getRecordPixelPosition(dbRecord) {
-  const coords = getRecordMiddlePointCoordinate(dbRecord)
-  if (!coords) return
-  const x = (width / 2) + (width / 2) * coords.lng / 180
-  const y = (height / 2) - (height / 2) * coords.lat / 90
-  return {x, y}
-}
-
 function hasEnoughData(record) {
   if (!record.nTweets || record.nTweets >= minTweets) return true
   else if (record.nTweets === minTweets) {
