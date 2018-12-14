@@ -21,6 +21,7 @@
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^6.0.1",
     "@turf/helpers": "^6.1.4",
+    "@turf/union": "^6.0.3",
     "canvas": "^2.2.0",
     "chalk": "^2.4.1",
     "cld": "^2.4.8",

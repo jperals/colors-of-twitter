@@ -5,11 +5,13 @@ const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const {doInBatches} = require('./db')
 const {getLanguageFences} = require('./fences')
 const fs = require('fs')
+const jsonfile = require('jsonfile')
 const languageColor = require('./language-color')
 const leftPad = require('left-pad')
 const parseArgs = require('minimist')
 const pointInPolygon = require('@turf/boolean-point-in-polygon').default
 const turf = require('@turf/helpers')
+const polygonUnion = require('@turf/union').default
 const Voronoi = require('voronoi')
 
 const batchSize = Number(process.env.BATCH_SIZE)
@@ -31,8 +33,19 @@ connectToDatabase()
   .then(getCollection)
   .then(addPoints)
   .then(computeVoronoiDiagram)
-  .then(drawToCanvas)
-  .then(exportPng)
+  .then(diagram => Promise.all([
+    drawToCanvas(diagram),
+    (() => {
+      const cellGroups = groupCellsByColor(diagram)
+      const multiPolygonGroups = groupedPolygons(cellGroups)
+      const geoJson = groupedPolygonsToGeojson(multiPolygonGroups)
+      return geoJson
+    })()
+  ]))
+  .then(([diagram, geoJson]) => Promise.all([
+    saveGeojson(geoJson),
+    exportPng(diagram)
+  ]))
   .then(finish)
 
 function getCollection(client) {
@@ -88,6 +101,76 @@ function computeVoronoiDiagram(sites) {
   console.log('Computed Voronoi diagram in', diagram.execTime, 'milliseconds.')
   console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
   return diagram
+}
+
+function groupCellsByColor(diagram) {
+  const groups = {}
+  for(const cell of diagram.cells) {
+    const color = cell.site.color
+    if(!groups.hasOwnProperty(color)) {
+      groups[color] = new Set()
+    }
+    groups[color].add(cell)
+  }
+  return groups
+}
+
+function groupedPolygons(cellGroups) {
+  const polygonGroups = {}
+  for(const key in cellGroups) {
+    const cellGroup = cellGroups[key]
+    const polygons = []
+    const cells = cellGroup.values()
+    for(const cell of cells) {
+      polygons.push(voronoiCellToGeojsonPolygon(cell))
+    }
+    let union
+    for (const polygon of polygons) {
+      if(union) {
+        union = polygonUnion(union, polygon)
+      } else {
+        union = polygon
+      }
+    }
+    polygonGroups[key] = union
+    union.style = {
+      fill: key,
+      'fill-opacity': .6
+    }
+    union.fill = key
+  }
+  return polygonGroups
+}
+
+function voronoiCellToGeojsonPolygon(cell) {
+  const rawPoints = []
+  for (const halfEdge of cell.halfedges) {
+    rawPoints.push(pointFromHalfEdge(halfEdge))
+  }
+  // We need to add the initial point again as last point
+  // for Turf to create the polygon
+  rawPoints.push(pointFromHalfEdge(cell.halfedges[0]))
+  return turf.polygon([rawPoints])
+}
+
+function pointFromHalfEdge(halfEdge) {
+  const vertex = halfEdge.getStartpoint()
+  return [vertex.x, vertex.y]
+}
+
+function groupedPolygonsToGeojson(groups) {
+  const features = []
+  for (const color in groups) {
+    features.push(groups[color])
+  }
+  return {
+    type: 'FeatureCollection',
+    features
+  }
+}
+
+function saveGeojson(geoJson) {
+  return jsonfile.writeFile('./output/areas.json', geoJson, {spaces: 2})
 }
 
 function drawToCanvas(diagram) {
