@@ -6,6 +6,7 @@
   "scripts": {
     "collect": "node src/collect-tweets.js",
     "draw": "node src/draw.js",
+    "geojson": "node src/geojson.js",
     "legend": "node src/legend.js",
     "process": "node src/process-data.js",
     "test": "mocha test/*"
@@ -21,6 +22,7 @@
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^6.0.1",
     "@turf/helpers": "^6.1.4",
+    "@turf/intersect": "^6.1.3",
     "@turf/union": "^6.0.3",
     "canvas": "^2.2.0",
     "chalk": "^2.4.1",

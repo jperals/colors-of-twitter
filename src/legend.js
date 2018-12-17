@@ -4,68 +4,38 @@ require('dotenv').config()
 
 const chalk = require('chalk')
 const cld = require('cld')
-const {connectToDatabase, finish, handleRejection} = require('./common.js')
-const {doInBatches} = require('./db.js')
+const {finish, handleRejection} = require('./common.js')
 const jsonfile = require('jsonfile')
 const languageColor = require('./language-color')
 const parseArgs = require('minimist')
-const batchSize = Number(process.env.BATCH_SIZE)
-const limit = Number(process.env.LIMIT)
-const languageIdentificationEngine = 'cld'
-const languageCodes = new Set()
 
-connectToDatabase()
+getLanguages()
   .catch(handleRejection)
-  .then(getLanguages)
   .then(printLegend)
   .then(finish)
 
-function getLanguages(dbClient) {
-  const db = dbClient.db(process.env.DATABASE_NAME)
-  console.log('Connected to database')
-  const collection = db.collection(process.env.COLLECTION_LOCATIONS)
-  console.log('Collecting languages in use...')
-  return doInBatches(addLocationLanguage, {
-    collection,
-    batchSize,
-    limit
+function getLanguages() {
+  return new Promise((resolve, reject) => {
+    const languages = {}
+    // Reverse key-value relationship
+    for (const languageName in cld.LANGUAGES) {
+      const languageCode = cld.LANGUAGES[languageName]
+      languages[languageCode] = {
+        code: languageCode,
+        color: languageColor(languageCode),
+        name: capitalize(languageName)
+      }
+    }
+    resolve(languages)
   })
 }
 
-function addLocationLanguage({record}) {
-  try {
-    const languageCode = record.languageData[languageIdentificationEngine].mainLanguage
-    languageCodes.add(languageCode)
-  } catch (error) {
-    return
-  }
-}
-
-function getLanguageName(languageCode) {
-  const languages = cld.LANGUAGES
-  const str = Object.keys(languages).find(key => languages[key] === languageCode)
-  return capitalize(str)
-}
-
-function getLegend(languageCodes) {
-  const languageColors = {}
-  for (const languageCode of languageCodes) {
-    languageColors[languageCode] = {
-      color: languageColor(languageCode),
-      name: getLanguageName(languageCode)
-    }
-  }
-  return languageColors
-}
-
-function printLegend() {
-  const languageData = getLegend(languageCodes)
+function printLegend(languageData) {
   const args = parseArgs(process.argv.slice(2))
   if (args.json) {
     return jsonfile.writeFile('./output/legend.json', languageData, {spaces: 2})
   } else {
-    const sortedCodes = Array.from(languageCodes).sort()
-    for (const code of sortedCodes) {
+    for (const code in languageData) {
       const language = languageData[code]
       const color = language.color
       const name = language.name

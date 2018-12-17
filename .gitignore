@@ -1,3 +1,4 @@
 .env
 /output
 !/output/.gitkeep
+/src/app/data/
