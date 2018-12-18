@@ -4,35 +4,43 @@ const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const {doInBatches} = require('./db')
 const {getLanguageFences} = require('./fences')
 const jsonfile = require('jsonfile')
+const land = require('./land.json')
 const parseArgs = require('minimist')
 const pointInPolygon = require('@turf/boolean-point-in-polygon').default
 const turf = require('@turf/helpers')
 const intersect = require('@turf/intersect').default
 const polygonUnion = require('@turf/union').default
+const ProgressBar = require('progress')
+const scale = require('@turf/transform-scale').default
 const Voronoi = require('voronoi')
-const land = require('./land.json')
 
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
+
 // Minimum tweets collected per location in order to include it in the map
-const minTweets = 1
+const minTweets = 2
 // Minimum number of tweets in relation to number of languages for each location
 const minTweetsPerNumberOfLanguages = 1.5
+
+// We scale coordinates up before performing calculations
+// in order to prevent precision-related errors,
+// and scale them back down afterwards.
+const scaleFactor = 1000000
+
 let excludedLanguages
 
 const languageIdentificationEngine = 'cld'
-let drawnItems = 0
 
 connectToDatabase()
   .catch(handleRejection)
   .then(getCollection)
-  .then(addPoints)
+  .then(addVoronoiSites)
+  .then(scaleVoronoiSitesUp)
   .then(computeVoronoiDiagram)
-  .then(diagram => {
-    const multiPolygonGroups = groupByColor(diagram)
-    const onlyLand = intersectLand(multiPolygonGroups)
-    return groupedPolygonsToGeojson(onlyLand)
-  })
+  .then(voronoiDiagramToGroupedMultipolygons)
+  .then(intersectWithLand)
+  .then(groupedMultipolygonsToSingleFeatureCollection)
+  .then(scaleMultipolygonFeatureCollectionDown)
   .then(saveGeojson)
   .then(finish)
 
@@ -49,7 +57,7 @@ function getCollection(client) {
   return db.collection(process.env.COLLECTION_LOCATIONS)
 }
 
-function addPoints(collection) {
+function addVoronoiSites(collection) {
   const sites = []
   return doInBatches(({record}) => {
     addVoronoiSite(sites, record)
@@ -58,6 +66,14 @@ function addPoints(collection) {
       console.log('Added', sites.length.toLocaleString(), 'Voronoi sites.')
       return sites
     })
+}
+
+function scaleVoronoiSitesUp(sites, factor = scaleFactor) {
+  for (const site of sites) {
+    site.x *= factor
+    site.y *= factor
+  }
+  return sites
 }
 
 function addVoronoiSite(sites, item) {
@@ -70,7 +86,6 @@ function addVoronoiSite(sites, item) {
           y: coordinates.lat,
           language: languageCode
         })
-        drawnItems += 1
       }
       return sites
     })
@@ -82,10 +97,10 @@ function addVoronoiSite(sites, item) {
 function computeVoronoiDiagram(sites) {
   console.log('Computing Voronoi diagram...')
   const boundingBox = {
-    xl: -180,
-    xr: 180,
-    yt: -90,
-    yb: 90
+    xl: -180 * scaleFactor,
+    xr: 180 * scaleFactor,
+    yt: -90 * scaleFactor,
+    yb: 90 * scaleFactor
   }
   const voronoi = new Voronoi()
   const diagram = voronoi.compute(sites, boundingBox)
@@ -94,8 +109,13 @@ function computeVoronoiDiagram(sites) {
   return diagram
 }
 
-function groupByColor(diagram) {
-  console.log('Grouping diagram cells of the same language into GeoJson multipolygons...')
+function voronoiDiagramToGroupedMultipolygons(diagram) {
+  console.log('Grouping diagram cells of the same language into GeoJson multipolygons... This might take a while.')
+  const progressBar = new ProgressBar(':bar :percent | :current/:total | ETA: :etas', {
+    complete: '█',
+    incomplete: '░',
+    total: diagram.cells.length
+  })
   const cellGroups = {}
   for (const cell of diagram.cells) {
     const languageCode = cell.site.language
@@ -110,7 +130,6 @@ function groupByColor(diagram) {
     const cellGroup = cellGroups[key]
     const polygons = []
     const cells = cellGroup.values()
-    console.log(key + ':', Array.from(cellGroup).length.toLocaleString(), 'locations')
     for (const cell of cells) {
       polygons.push(voronoiCellToGeojsonPolygon(cell))
       nPolygons += 1
@@ -123,20 +142,29 @@ function groupByColor(diagram) {
         union = polygon
       }
     }
+    progressBar.tick(polygons.length)
     polygonGroups[key] = union
   }
   return polygonGroups
 }
 
-function intersectLand(polygonGroups) {
+function intersectWithLand(polygonGroups) {
   console.log('The map will contain', Object.keys(polygonGroups).length.toLocaleString(), 'different languages.')
   console.log("Intersecting polygons with Earth's land area...")
+  const scaledUpLand = scale(land, scaleFactor, {
+    origin: 'center',
+    mutate: true
+  })
+  const progressBar = new ProgressBar(':bar :percent | :current/:total | ETA: :etas', {
+    complete: '█',
+    incomplete: '░',
+    total: Object.keys(polygonGroups).length
+  })
   for (const key in polygonGroups) {
-    process.stdout.write('.')
     const multiPolygon = polygonGroups[key]
     let newPolygon
     try {
-      newPolygon = intersect(multiPolygon, land)
+      newPolygon = intersect(multiPolygon, scaledUpLand)
     } catch (e) {
       console.warn('There was a problem with a polygon of this language:', key)
       jsonfile.writeFile('./output/error-' + key + '.json', multiPolygon, {spaces: 2})
@@ -149,6 +177,7 @@ function intersectLand(polygonGroups) {
       // All in the sea?
       delete polygonGroups[key]
     }
+    progressBar.tick()
   }
   return polygonGroups
 }
@@ -169,7 +198,7 @@ function pointFromHalfEdge(halfEdge) {
   return [vertex.x, vertex.y]
 }
 
-function groupedPolygonsToGeojson(groups) {
+function groupedMultipolygonsToSingleFeatureCollection(groups) {
   const features = []
   for (const key in groups) {
     const feature = groups[key]
@@ -185,6 +214,17 @@ function groupedPolygonsToGeojson(groups) {
   }
 }
 
+function scaleMultipolygonFeatureCollectionUp(featureCollection, factor = scaleFactor) {
+  return scale(featureCollection, factor, {
+    origin: 'center',
+    mutate: true
+  })
+}
+
+function scaleMultipolygonFeatureCollectionDown(geoJson) {
+  return scaleMultipolygonFeatureCollectionUp(geoJson, 1 / scaleFactor)
+}
+
 function saveGeojson(geoJson) {
   return jsonfile.writeFile('./output/language-areas.json', geoJson, {spaces: 2})
 }
@@ -192,7 +232,7 @@ function saveGeojson(geoJson) {
 function getLanguage(record) {
   if (!hasEnoughData(record)) return new Promise((resolve) => resolve())
   const languageData = record.languageData[languageIdentificationEngine]
-  const mainLanguage = languageData.mainLanguage
+  const mainLanguage = getRecordMainLanguage(record)
   const coordinateLatLng = getRecordMiddlePointCoordinate(record)
   const coordinateXY = [coordinateLatLng.lng, coordinateLatLng.lat]
   return isOutsideItsFences(coordinateXY, mainLanguage)
