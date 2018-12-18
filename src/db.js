@@ -1,4 +1,4 @@
-const cliProgress = require('cli-progress')
+const ProgressBar = require('progress')
 
 let progressBar
 
@@ -88,9 +88,6 @@ function doInBatches(callbackFunction, {collection, startFromId, batchSize = 100
 }
 
 function endUpdate() {
-  if (progressBar) {
-    progressBar.stop()
-  }
   progressBar = undefined
 }
 
@@ -117,11 +114,14 @@ function getRecordBatch({collection, startFromId, batchSize, query = {}}) {
 
 function reportUpdate({doneCount, estimatedCount}) {
   if (!progressBar && doneCount < estimatedCount) {
-    progressBar = new cliProgress.Bar({}, cliProgress.Presets.shades_classic)
-    progressBar.start(estimatedCount, doneCount)
+    progressBar = new ProgressBar(':bar :percent | :current/:total | ETA: :etas', {
+      complete: '█',
+      incomplete: '░',
+      total: estimatedCount
+    })
   }
   if (progressBar) {
-    progressBar.update(doneCount)
+    progressBar.update(doneCount/estimatedCount)
   }
 }
 
