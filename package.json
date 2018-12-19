@@ -8,6 +8,7 @@
     "draw": "node src/draw.js",
     "geojson": "node src/geojson.js",
     "legend": "node src/legend.js",
+    "prepare": "node src/prepare-blank-maps.js",
     "process": "node src/process-data.js",
     "test": "mocha test/*"
   },
