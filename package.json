@@ -6,8 +6,8 @@
   "scripts": {
     "collect": "node src/collect-tweets.js",
     "draw": "node src/draw.js",
-    "geojson": "node src/geojson.js",
-    "legend": "node src/legend.js",
+    "geojson": "node src/map.js && cp output/language-areas.json src/app/data",
+    "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
     "prepare": "node src/prepare-blank-maps.js",
     "process": "node src/process-data.js",
     "test": "mocha test/*"
