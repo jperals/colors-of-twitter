@@ -176,14 +176,9 @@ function intersectWithLand(polygonGroups) {
       newPolygon = multiPolygon
     }
     try {
-      let done = false
-      setTimeout(() => {
-        if(!done) {
-          throw new Error()
-        }
-      }, 20000)
-      newPolygon = difference(newPolygon, sea)
-      done = true
+      if(key !== 'ms' && key !== 'ar' && key !== 'fr') {
+        newPolygon = difference(newPolygon, sea)
+      }
     } catch (e) {
       console.warn('There was a problem with a polygon of this language:', key)
       jsonfile.writeFile('./output/error-difference-' + key + '.json', multiPolygon, {spaces: 2})

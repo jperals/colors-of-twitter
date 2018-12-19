@@ -6,7 +6,7 @@
   "scripts": {
     "collect": "node src/collect-tweets.js",
     "draw": "node src/draw.js",
-    "geojson": "node src/map.js && cp output/language-areas.json src/app/data",
+    "map": "node src/map.js && cp output/language-areas.json src/app/data",
     "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
     "prepare": "node src/prepare-blank-maps.js",
     "process": "node src/process-data.js",
@@ -22,6 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "@turf/boolean-point-in-polygon": "^6.0.1",
+    "@turf/difference": "^6.0.2",
     "@turf/helpers": "^6.1.4",
     "@turf/intersect": "^6.1.3",
     "@turf/transform-scale": "^5.1.5",
@@ -29,7 +30,6 @@
     "canvas": "^2.2.0",
     "chalk": "^2.4.1",
     "cld": "^2.4.8",
-    "cli-progress": "^2.1.0",
     "color-hash": "^1.0.3",
     "dotenv": "^6.1.0",
     "jsonfile": "^5.0.0",
