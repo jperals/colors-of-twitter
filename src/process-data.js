@@ -66,7 +66,7 @@ function collectLocations() {
     collection: srcCollection,
     limit,
     batchSize,
-    message: 'Collecting unique locations...',
+    message: 'Aggregating tweet data into unique locations data...',
     inSequence: true
   })
 }
