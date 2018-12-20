@@ -46,8 +46,7 @@ connectToDatabase()
   .then(saveGeojson)
   .then(finish)
 
-function getCollection(client) {
-  const db = client.db(process.env.DATABASE_NAME)
+function getCollection(db) {
   const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude || process.env.EXCLUDE_LANGUAGES
   if (excludedLanguagesStr) {
     excludedLanguages = excludedLanguagesStr.split(',')

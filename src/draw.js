@@ -35,8 +35,7 @@ connectToDatabase()
   .then(exportPng)
   .then(finish)
 
-function getCollection(client) {
-  const db = client.db(process.env.DATABASE_NAME)
+function getCollection(db) {
   const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude
   if (excludedLanguagesStr) {
     excludedLanguages = excludedLanguagesStr.split(',')
