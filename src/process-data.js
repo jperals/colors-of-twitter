@@ -1,9 +1,9 @@
 require('dotenv').config()
 
 const cld = require('cld')
-const parseArgs = require('minimist')
-const MongoClient = require('mongodb').MongoClient
+const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const {doInBatches} = require('./db.js')
+const parseArgs = require('minimist')
 
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
@@ -21,18 +21,7 @@ connectToDatabase()
   .then(calculateMainLanguages)
   .then(finish)
 
-function connectToDatabase() {
-  return MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
-}
-
-function handleRejection(error) {
-  console.error(error)
-  process.exit(1)
-}
-
-function initTargetCollection(client) {
-  db = client.db(process.env.DATABASE_NAME)
-  console.log('Connected to the database')
+function initTargetCollection(db) {
   const collectionName = process.env.COLLECTION_LOCATIONS
   return db.listCollections({name: collectionName}).hasNext()
     .then(exists => {
@@ -84,11 +73,6 @@ function calculateMainLanguages(nDocuments) {
     limit: Math.min(limit, nDocuments),
     message: 'Calculating main language for each location...'
   })
-}
-
-function finish() {
-  console.log('Done.')
-  process.exit(0)
 }
 
 function collectLocation({record}) {
