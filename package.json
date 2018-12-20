@@ -10,6 +10,7 @@
     "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
     "prepare": "node src/prepare-blank-maps.js",
     "process": "node src/process-data.js",
+    "stats": "node src/stats.js",
     "test": "mocha test/*"
   },
   "keywords": [
