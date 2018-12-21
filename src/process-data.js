@@ -21,7 +21,8 @@ connectToDatabase()
   .then(calculateMainLanguages)
   .then(finish)
 
-function initTargetCollection(db) {
+function initTargetCollection(_db) {
+  db = _db
   const collectionName = process.env.COLLECTION_LOCATIONS
   return db.listCollections({name: collectionName}).hasNext()
     .then(exists => {
