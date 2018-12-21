@@ -1,42 +1,30 @@
-require('dotenv').config()
-
-const {createCanvas} = require('canvas')
-const {connectToDatabase, finish, handleRejection} = require('./common.js')
 const {doInBatches} = require('./db')
 const {getLanguageFences} = require('./fences')
-const fs = require('fs')
-const languageColor = require('./language-color')
-const leftPad = require('left-pad')
 const parseArgs = require('minimist')
 const pointInPolygon = require('@turf/boolean-point-in-polygon').default
 const turf = require('@turf/helpers')
 const Voronoi = require('voronoi')
-
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
+
 // Minimum tweets collected per location in order to include it in the map
-const minTweets = 2
+const minTweets = 500
 // Minimum number of tweets in relation to number of languages for each location
 const minTweetsPerNumberOfLanguages = 1.5
-const width = Number(process.env.WIDTH)
-const height = Number(process.env.HEIGHT)
+
+// We might scale coordinates up before performing calculations
+// in order to prevent precision-related errors,
+// and scale them back down afterwards.
+const scaleFactor = 1
+
+const languageDetectionEngine = 'cld'
+
 let excludedLanguages
 
-const canvas = createCanvas(width, height)
-const languageIdentificationEngine = 'cld'
-let drawnItems = 0
-
-connectToDatabase()
-  .catch(handleRejection)
-  .then(getCollection)
-  .then(addPoints)
-  .then(computeVoronoiDiagram)
-  .then(drawToCanvas)
-  .then(exportPng)
-  .then(finish)
+module.exports = generateVoronoiMap
 
 function getCollection(db) {
-  const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude
+  const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude || process.env.EXCLUDE_LANGUAGES
   if (excludedLanguagesStr) {
     excludedLanguages = excludedLanguagesStr.split(',')
     if (excludedLanguages && excludedLanguages.length) {
@@ -47,29 +35,47 @@ function getCollection(db) {
   return db.collection(process.env.COLLECTION_LOCATIONS)
 }
 
-function addPoints(collection) {
+function generateVoronoiMap(collections) {
+  return new Promise((resolve) => resolve(collections))
+    .then(getCollection)
+    .then(addVoronoiSites)
+    .then(scaleVoronoiSitesUp)
+    .then(computeVoronoiDiagram)
+}
+
+function addVoronoiSites(collection) {
   const sites = []
   return doInBatches(({record}) => {
     addVoronoiSite(sites, record)
   }, {collection, batchSize, limit, message: 'Retrieving records...'})
     .then(() => {
-      console.log('Added', sites.length, 'Voronoi sites.')
+      console.log('Added', sites.length.toLocaleString(), 'Voronoi sites.')
       return sites
     })
 }
 
+function scaleVoronoiSitesUp(sites, factor = scaleFactor) {
+  for (const site of sites) {
+    site.x *= factor
+    site.y *= factor
+  }
+  return sites
+}
+
 function addVoronoiSite(sites, item) {
   const coordinates = getRecordMiddlePointCoordinate(item)
-  return getColor(item)
-    .then(color => {
-      if (color) {
+  return getLanguage(item)
+    .then(languageCode => {
+      if (languageCode) {
         sites.push({
           x: coordinates.lng,
           y: coordinates.lat,
-          color
+          language: languageCode
         })
-        drawnItems += 1
       }
+      return sites
+    })
+    .catch(() => {
       return sites
     })
 }
@@ -77,91 +83,22 @@ function addVoronoiSite(sites, item) {
 function computeVoronoiDiagram(sites) {
   console.log('Computing Voronoi diagram...')
   const boundingBox = {
-    xl: -180,
-    xr: 180,
-    yt: -90,
-    yb: 90
+    xl: -180 * scaleFactor,
+    xr: 180 * scaleFactor,
+    yt: -90 * scaleFactor,
+    yb: 90 * scaleFactor
   }
   const voronoi = new Voronoi()
   const diagram = voronoi.compute(sites, boundingBox)
-  console.log('Computed Voronoi diagram in', diagram.execTime, 'milliseconds.')
-  console.log('Computed', diagram.vertices.length, 'vertices,', diagram.edges.length, 'edges and', diagram.cells.length, 'cells.')
+  console.log('Computed Voronoi diagram in', diagram.execTime.toLocaleString(), 'milliseconds.')
+  console.log('Computed', diagram.vertices.length.toLocaleString(), 'vertices,', diagram.edges.length.toLocaleString(), 'edges and', diagram.cells.length.toLocaleString(), 'cells.')
   return diagram
-}
-
-function voronoiCellToGeojsonPolygon(cell) {
-  const rawPoints = []
-  for (const halfEdge of cell.halfedges) {
-    rawPoints.push(pointFromHalfEdge(halfEdge))
-  }
-  // We need to add the initial point again as last point
-  // for Turf to create the polygon
-  rawPoints.push(pointFromHalfEdge(cell.halfedges[0]))
-  return turf.polygon([rawPoints])
-}
-
-function pointFromHalfEdge(halfEdge) {
-  const vertex = halfEdge.getStartpoint()
-  return [vertex.x, vertex.y]
-}
-
-function drawToCanvas(diagram) {
-  const ctx = canvas.getContext('2d')
-  const factorX = width / 360
-  const factorY = height / 180
-  for (const cell of diagram.cells) {
-    if (!cell.halfedges.length) continue
-    ctx.fillStyle = cell.site.color
-    ctx.beginPath()
-    const firstVertex = cell.halfedges[0].getStartpoint()
-    ctx.moveTo((firstVertex.x + 180) * factorX, height - (firstVertex.y + 90) * factorY)
-    for (let i = 1; i < cell.halfedges.length; i++) {
-      const halfEdge = cell.halfedges[i]
-      const vertex = halfEdge.getStartpoint()
-      ctx.lineTo((vertex.x + 180) * factorX, height - (vertex.y + 90) * factorY)
-    }
-    ctx.closePath()
-    ctx.fill()
-  }
-  return diagram
-}
-
-function exportPng(diagram) {
-  const nPoints = diagram.cells.length
-  return new Promise((resolve, reject) => {
-    const fileName = getFileName(nPoints)
-    console.log('Drawing to file:', fileName)
-    const out = fs.createWriteStream(fileName)
-    const stream = canvas.createPNGStream()
-    stream.pipe(out)
-    out.on('finish', resolve)
-  })
-}
-
-function getFileName(nPoints) {
-  const now = new Date()
-  let fileName = now.getFullYear() + '' + leftPad((now.getMonth() + 1), 2, '0') + '' + leftPad(now.getDate(), 2, '0') + '-' + now.getTime()
-  if (typeof nPoints !== 'undefined') {
-    fileName += '-' + nPoints + 'points'
-  }
-  return './output/map-' + fileName + '.png'
-}
-
-function getColor(record) {
-  return getLanguage(record)
-    .then(languageCode => {
-      if (!languageCode) return
-      return languageColor(languageCode)
-    })
-    .catch((err) => {
-      return
-    })
 }
 
 function getLanguage(record) {
   if (!hasEnoughData(record)) return new Promise((resolve) => resolve())
-  const languageData = record.languageData[languageIdentificationEngine]
-  const mainLanguage = languageData.mainLanguage
+  const languageData = record.languageData[languageDetectionEngine]
+  const mainLanguage = getRecordMainLanguage(record)
   const coordinateLatLng = getRecordMiddlePointCoordinate(record)
   const coordinateXY = [coordinateLatLng.lng, coordinateLatLng.lat]
   return isOutsideItsFences(coordinateXY, mainLanguage)
@@ -219,7 +156,7 @@ function getRecordMiddlePointCoordinate(dbRecord) {
 function hasEnoughData(record) {
   if (!record.nTweets || record.nTweets >= minTweets) return true
   else if (record.nTweets === minTweets) {
-    const languageData = record.languageData[languageIdentificationEngine]
+    const languageData = record.languageData[languageDetectionEngine]
     const languagesObj = languageData.languages
     const languageKeys = Object.keys(languagesObj)
     return record.nTweets > 1 && record.nTweets / languageKeys.length > minTweetsPerNumberOfLanguages
@@ -244,9 +181,10 @@ function isOutsideItsFences(coordinate, languageCode) {
 }
 
 function getRecordMainLanguage(record) {
-  return record.languageData[languageIdentificationEngine].mainLanguage
+  return record.languageData[languageDetectionEngine].mainLanguage
 }
 
 function isExcluded(language) {
   return excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(language) !== -1
 }
+

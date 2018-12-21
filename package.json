@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "collect": "node src/collect-tweets.js",
-    "draw": "node src/draw.js",
-    "map": "node src/map.js && cp output/language-areas.json src/app/data",
+    "geojson": "node src/map.js --geojson && cp output/language-areas.json src/app/data",
     "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
+    "png": "node src/map.js --png",
     "prepare": "node src/prepare-blank-maps.js",
     "process": "node src/process-data.js",
     "stats": "node src/stats.js",
