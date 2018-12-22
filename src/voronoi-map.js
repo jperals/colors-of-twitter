@@ -6,16 +6,12 @@ const turf = require('@turf/helpers')
 const Voronoi = require('voronoi')
 const batchSize = Number(process.env.BATCH_SIZE)
 const limit = Number(process.env.LIMIT)
-
 // Minimum tweets collected per location in order to include it in the map
-const minTweets = 500
-// Minimum number of tweets in relation to number of languages for each location
-const minTweetsPerNumberOfLanguages = 1.5
-
+const minTweets = Number(process.env.MIN_TWEETS) || 0
 // We might scale coordinates up before performing calculations
 // in order to prevent precision-related errors,
 // and scale them back down afterwards.
-const scaleFactor = 1
+const scaleFactor = Number(process.env.SCALE_FACTOR) || 1
 
 const languageDetectionEngine = 'cld'
 
