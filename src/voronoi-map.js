@@ -158,14 +158,7 @@ function getRecordMiddlePointCoordinate(dbRecord) {
 }
 
 function hasEnoughData(record) {
-  if (!record.nTweets || record.nTweets >= minTweets) return true
-  else if (record.nTweets === minTweets) {
-    const languageData = record.languageData[languageDetectionEngine]
-    const languagesObj = languageData.languages
-    const languageKeys = Object.keys(languagesObj)
-    return record.nTweets > 1 && record.nTweets / languageKeys.length > minTweetsPerNumberOfLanguages
-  }
-  return false
+  return record.nTweets >= minTweets
 }
 
 function isOutsideItsFences(coordinate, languageCode) {
