@@ -19,6 +19,10 @@ const scaleFactor = 1
 
 const languageDetectionEngine = 'cld'
 
+const args = process.argv.slice(2)
+
+const ignoreFences = Boolean(parseArgs(args).raw)
+
 let excludedLanguages
 
 module.exports = generateVoronoiMap
@@ -165,6 +169,9 @@ function hasEnoughData(record) {
 }
 
 function isOutsideItsFences(coordinate, languageCode) {
+  if(ignoreFences) {
+    return new Promise(resolve => resolve(false))
+  }
   return getLanguageFences(languageCode)
     .then(fences => {
       for (const feature of fences.features) {
