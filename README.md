@@ -31,9 +31,13 @@ npm run collect
 
 npm run process
 
-# Finally! Draw a map with the processed data.
+# Finally! Draw a map with the processed data:
 
-npm run draw
+# - As a PNG image
+npm run png
+
+# - As GeoJSON
+npm urn geojson
 
 ```
 
