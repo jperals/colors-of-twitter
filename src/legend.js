@@ -7,6 +7,7 @@ const cld = require('cld')
 const {finish, handleRejection} = require('./common.js')
 const jsonfile = require('jsonfile')
 const languageColor = require('./language-color')
+const languageNames = require('./language-names')
 const parseArgs = require('minimist')
 
 getLanguages()
@@ -20,10 +21,11 @@ function getLanguages() {
     // Reverse key-value relationship
     for (const languageName in cld.LANGUAGES) {
       const languageCode = cld.LANGUAGES[languageName]
+      const prettyLanguageName = languageNames[languageCode] ? languageNames[languageCode] : capitalize(languageName)
       languages[languageCode] = {
         code: languageCode,
         color: languageColor(languageCode),
-        name: capitalize(languageName)
+        name: prettyLanguageName
       }
     }
     resolve(languages)
