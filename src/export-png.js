@@ -1,5 +1,6 @@
 require('dotenv').config()
 
+const boxAliases = require('./bounding-boxes')
 const {createCanvas, loadImage} = require('canvas')
 const fs = require('fs')
 const languageColor = require('./language-color')
@@ -16,7 +17,12 @@ let bottom
 const args = parseArgs(process.argv.slice(2))
 const boundingBoxStr = args.box
 if(boundingBoxStr) {
-  [left, top, right, bottom] = boundingBoxStr.split(',').map(str => Number(str))
+  if(boxAliases[boundingBoxStr]) {
+    [left, top, right, bottom] = boxAliases[boundingBoxStr]
+  }
+  else {
+    [left, top, right, bottom] = boundingBoxStr.split(',').map(str => Number(str))
+  }
 } else {
   left = -180
   right = 180
