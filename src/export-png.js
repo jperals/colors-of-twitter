@@ -45,11 +45,11 @@ module.exports = function (voronoiDiagram) {
 function drawDiagram(diagram) {
   console.log('Drawing diagram to canvas...')
   const ctx = canvas.getContext('2d')
+  ctx.lineWidth = .5
   for (const cell of diagram.cells) {
     if (!cell.halfedges.length) continue
     const color = getColor(cell.site.language)
     ctx.fillStyle = color
-    ctx.lineWidth = 2
     ctx.strokeStyle = color
     ctx.beginPath()
     const firstVertex = cell.halfedges[0].getStartpoint()
@@ -60,6 +60,7 @@ function drawDiagram(diagram) {
       const vertex = halfEdge.getStartpoint()
       const {x, y} = projectPoint(vertex)
       ctx.lineTo(x, y)
+      ctx.stroke()
     }
     ctx.closePath()
     ctx.fill()
