@@ -1,25 +1,11 @@
 require('dotenv').config()
 
 const cld = require('cld')
-const {connectToDatabase, finish, handleRejection} = require('./common.js')
-const {doInBatches} = require('./db.js')
 const parseArgs = require('minimist')
 
-const batchSize = Number(process.env.BATCH_SIZE)
-const limit = Number(process.env.LIMIT)
 const minTweetLength = Number(process.env.MIN_TWEET_LENGTH)
 
 let db
-let targetCollection
-
-connectToDatabase()
-  .catch(handleRejection)
-  .then(initTargetCollection)
-  .then(assignGlobal)
-  .then(collectLocations)
-  .then(reportCount)
-  .then(calculateMainLanguages)
-  .then(finish)
 
 function initTargetCollection(_db) {
   db = _db
@@ -32,6 +18,7 @@ function initTargetCollection(_db) {
           // If a `clean` argument was passed, clean up the database (empty it) before adding the new records
           console.log('Cleaning up locations first...')
           return collection.deleteMany({})
+            .then(() => db.collection(collectionName))
         } else {
           return collection
         }
@@ -42,41 +29,7 @@ function initTargetCollection(_db) {
       }
     })
 }
-
-function assignGlobal() {
-  const targetCollectionName = process.env.COLLECTION_LOCATIONS
-  targetCollection = db.collection(targetCollectionName)
-}
-
-function collectLocations() {
-  const srcCollectionName = process.env.COLLECTION_TWEETS
-  console.log('Reading from collection', srcCollectionName)
-  const srcCollection = db.collection(srcCollectionName)
-  return doInBatches(collectLocation, {
-    collection: srcCollection,
-    limit,
-    batchSize,
-    message: 'Aggregating tweet data into unique locations data...',
-    inSequence: true
-  })
-}
-
-function reportCount(inspected) {
-  console.log('Inspected', inspected, 'tweets.')
-  return targetCollection.countDocuments()
-}
-
-function calculateMainLanguages(nDocuments) {
-  console.log('Found ' + nDocuments + ' unique locations.')
-  return doInBatches(calculateMainLanguage, {
-    collection: targetCollection,
-    batchSize,
-    limit: Math.min(limit, nDocuments),
-    message: 'Calculating main language for each location...'
-  })
-}
-
-function collectLocation({record}) {
+function collectLocation({targetCollection, record}) {
   return new Promise((resolve, reject) => {
     const boundingBoxId = getBoundingBoxId(record)
     if (boundingBoxId && record.tweet.text.length >= minTweetLength) {
@@ -93,18 +46,22 @@ function collectLocation({record}) {
           }
           let setObj
           if(foundRecord) {
+            const languages = combineLanguageData(foundRecord.languageData.cld.languages, languageData)
             setObj = {
               languageData: {
                 cld: {
-                  languages: combineLanguageData(foundRecord.languageData.cld.languages, languageData)
+                  languages,
+                  mainLanguage: getMainLanguage(languages)
                 }
               }
             }
           } else {
+            const languages = arrayToObject(languageData.languages, {key: 'code'})
             setObj = {
               languageData: {
                 cld: {
-                  languages: arrayToObject(languageData.languages, {key: 'code'})
+                  languages,
+                  mainLanguage: getMainLanguage(languages)
                 }
               },
               placeName: record.tweet.place.full_name
@@ -141,20 +98,6 @@ function arrayToObject(array, {key}) {
     obj[item[key]] = item
   }
   return obj
-}
-
-function calculateMainLanguage({collection, record}) {
-  const mainLanguage = getMainLanguage(record.languageData.cld.languages)
-  return collection.findOneAndUpdate({
-      '_id': record._id
-    },
-    {
-      '$set': {
-        languageData: {
-          cld: Object.assign(record.languageData.cld, {mainLanguage})
-        }
-      }
-    })
 }
 
 function combineLanguageData(existingData, newData) {
@@ -205,12 +148,17 @@ function getBoundingBoxId(record) {
   }
 }
 
-function getMainLanguage(languageData) {
-  return Object.keys(languageData).sort((key1, key2) => languageData[key2].score - languageData[key1].score)[0]
-}
-
 // Wether a `clean` parameter was passed, indicating that the collection
 // should be cleaned (emptied) before adding new records
 function cleanParam() {
   return parseArgs(process.argv.slice(2)).clean
+}
+
+function getMainLanguage(languageData) {
+  return Object.keys(languageData).sort((key1, key2) => languageData[key2].score - languageData[key1].score)[0]
+}
+
+module.exports = {
+  collectLocation,
+  initTargetCollection
 }

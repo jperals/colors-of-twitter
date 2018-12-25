@@ -4,12 +4,12 @@
   "description": "Generates language maps from Twitter data",
   "main": "index.js",
   "scripts": {
-    "collect": "node src/collect-tweets.js",
+    "collect": "node src/collect.js",
     "geojson": "node src/map.js --geojson && cp output/language-areas.json src/app/data",
     "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
     "png": "node src/map.js --png",
     "prepare": "node src/prepare-blank-maps.js",
-    "process": "node src/process-data.js",
+    "process": "node src/process-collected.js",
     "stats": "node src/stats.js",
     "test": "mocha test/*"
   },

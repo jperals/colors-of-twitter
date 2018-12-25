@@ -1,7 +1,11 @@
+// Collect live data and optionally process it
+
 require('dotenv').config()
 
 const leftPad = require('left-pad')
 const moment = require('moment')
+const parseArgs = require('minimist')
+const {collectLocation, initTargetCollection} = require('./process-data.js')
 const Twitter = require('twitter')
 const {connectToDatabase, handleRejection} = require('./common.js')
 
@@ -33,24 +37,48 @@ function initStream() {
 
 function collectTweets([db, stream]) {
   let nRecords = 0
-  const collectionName = getCollectionName()
-  console.log('Writing to collection', collectionName)
-  console.log('Collecting tweets...')
-  const collection = db.collection(collectionName)
-  stream.on('data', function (event) {
-    try {
-      if(isTweet(event)) {
-        collection.insertOne({
-          tweet: event
-        })
-          .then(() => {
-            nRecords += 1
+  const args = parseArgs(process.argv.slice(2))
+  if(args.raw) {
+    const collectionName = getCollectionName()
+    console.log('Writing to collection', collectionName)
+    console.log('Collecting tweets...')
+    const collection = db.collection(collectionName)
+    stream.on('data', function (event) {
+      try {
+        if(isTweet(event)) {
+          collection.insertOne({
+            tweet: event
           })
+            .then(() => {
+              nRecords += 1
+            })
+        }
+      } catch(error) {
+        console.error(error)
       }
-    } catch(error) {
-      console.error(error)
-    }
-  })
+    })
+  } else {
+    initTargetCollection(db)
+      .then(targetCollection => {
+        stream.on('data', function (event) {
+          try {
+            if (isTweet(event)) {
+              collectLocation({
+                targetCollection,
+                record: {
+                  tweet: event
+                }
+              })
+                .then(() => {
+                  nRecords += 1
+                })
+            }
+          } catch (error) {
+            console.error(error)
+          }
+        })
+      })
+  }
   stream.on('error', (error) => {
     console.error(error)
   })
