@@ -10,6 +10,7 @@
     "png": "node src/map.js --png",
     "prepare": "node src/prepare-blank-maps.js",
     "process": "node src/process-collected.js",
+    "start": "npm run collect",
     "stats": "node src/stats.js",
     "test": "mocha test/*"
   },
