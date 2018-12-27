@@ -8,7 +8,7 @@
     "geojson": "node src/map.js --geojson && cp output/language-areas.json src/app/data",
     "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
     "png": "node src/map.js --png",
-    "prepare": "node src/prepare-blank-maps.js",
+    "prepare-maps": "node src/prepare-blank-maps.js",
     "process": "node src/process-collected.js",
     "start": "npm run collect",
     "stats": "node src/stats.js",
