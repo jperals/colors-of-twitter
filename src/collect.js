@@ -104,9 +104,11 @@ function printProgress({initialTime, nRecords}){
   const elapsedTimeStr = now.from(initialTime)
   const elapedTimeMs = now - initialTime
   const tweetsPerSecond = nRecords / (elapedTimeMs/1000)
-  process.stdout.clearLine()
-  process.stdout.cursorTo(0)
-  process.stdout.write('Collected ' + nStr + ' tweets ' + elapsedTimeStr + ' (' + nDecimals(tweetsPerSecond, 2) + ' tweets per second).')
+  if(process && process.stdout && typeof process.stdout.clearLine === 'function') {
+    process.stdout.clearLine()
+    process.stdout.cursorTo(0)
+    process.stdout.write('Collected ' + nStr + ' tweets ' + elapsedTimeStr + ' (' + nDecimals(tweetsPerSecond, 2) + ' tweets per second).')
+  }
 }
 
 function nDecimals (n, decimals = 2) {
