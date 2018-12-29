@@ -26,9 +26,11 @@ function initTargetCollection(_db) {
         console.log('Creating collection ' + collectionName + '...')
         return db.collection(collectionName)
           .createIndex({'boundingBoxId': 1}, {unique: true})
+          .then(() => db.collection(collectionName))
       }
     })
 }
+
 function collectLocation({targetCollection, record}) {
   return new Promise((resolve, reject) => {
     const boundingBoxId = getBoundingBoxId(record)
