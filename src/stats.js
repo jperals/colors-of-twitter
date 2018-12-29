@@ -1,4 +1,5 @@
 const {connectToDatabase, finish, handleRejection} = require('./common.js')
+const {doInBatches} = require('./db')
 
 connectToDatabase()
   .catch(handleRejection)
@@ -27,15 +28,15 @@ function getLocationStats(db) {
 }
 
 function getTweetsStats(db) {
-  return db.listCollections().toArray()
-    .then(collectionsData => {
-      const filteredCollectionNames = collectionsData.filter((item) => item.name.startsWith('tweets_with_geolocation'))
-      const collections = filteredCollectionNames.map(collectionData => db.collection(collectionData.name))
-      return Promise.all(collections.map(collection => collection.estimatedDocumentCount()))
-    })
-    .then(results => {
+  const collection = db.collection(process.env.COLLECTION_LOCATIONS)
+  let nTweets = 0
+  return doInBatches(({record}) => {
+      nTweets += record.nTweets
+    },
+    {collection})
+    .then(() => {
       return {
-        totalSize: results.reduce((totalSize, collectionSize) => totalSize + collectionSize)
+        totalSize: nTweets
       }
     })
 }
