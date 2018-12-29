@@ -48,22 +48,24 @@ function collectLocation({targetCollection, record}) {
           }
           let setObj
           if (foundRecord) {
-            const languages = combineLanguageData(foundRecord.languageData.cld.languages, languageData)
+            const languagesData = combineLanguageData(foundRecord.languageData.cld.languages, languageData)
             setObj = {
               languageData: {
                 cld: {
-                  languages,
-                  mainLanguage: getMainLanguage(languages)
+                  languages: languagesData,
+                  mainLanguage: getMainLanguage(languagesData)
                 }
               }
             }
           } else {
-            const languages = arrayToObject(languageData.languages, {key: 'code'})
+            const languagesData = arrayToObject(languageData.languages, {key: 'code'})
+            const detectedLanguage = getMainLanguage(languagesData)
+            languagesData[detectedLanguage].times = 1
             setObj = {
               languageData: {
                 cld: {
-                  languages,
-                  mainLanguage: getMainLanguage(languages)
+                  languages: languagesData,
+                  mainLanguage: detectedLanguage
                 }
               },
               placeName: record.tweet.place.full_name
@@ -122,7 +124,7 @@ function combineLanguageData(existingData, newData) {
       }
     }
     const detectedLanguage = newData.languages.sort((a, b) => a.score - b.score)[0].code
-    combinedData[detectedLanguage].times = (existingData[detectedLanguage] && existingData[detectedLanguage].times || 0) + 1
+    combinedData[detectedLanguage].times = (combinedData[detectedLanguage].times || 0) + 1
   } catch (err) {
     console.log(err)
   }
