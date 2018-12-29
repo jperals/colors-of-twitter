@@ -42,12 +42,12 @@ function collectLocation({targetCollection, record}) {
         detectLanguage(record.tweet.text)
       ])
         .then(([foundRecord, languageData]) => {
-          if(!languageData) {
+          if (!languageData) {
             resolve()
             return
           }
           let setObj
-          if(foundRecord) {
+          if (foundRecord) {
             const languages = combineLanguageData(foundRecord.languageData.cld.languages, languageData)
             setObj = {
               languageData: {
@@ -105,10 +105,11 @@ function arrayToObject(array, {key}) {
 function combineLanguageData(existingData, newData) {
   const combinedData = {}
   try {
-    // Manual shallow copy, but just interested in the `score` field of each data set
+    // Manual shallow copy, but just interested in the `score` and `times` fields of each data set
     for (const languageCode of Object.keys(existingData)) {
       combinedData[languageCode] = {
-        score: existingData[languageCode].score
+        score: existingData[languageCode].score,
+        times: existingData[languageCode].times || 0
       }
     }
     for (const dataSet of newData.languages) {
@@ -120,7 +121,9 @@ function combineLanguageData(existingData, newData) {
         }
       }
     }
-  } catch(err) {
+    const detectedLanguage = newData.languages.sort((a, b) => a.score - b.score)[0].code
+    combinedData[detectedLanguage].times = (existingData[detectedLanguage] && existingData[detectedLanguage].times || 0) + 1
+  } catch (err) {
     console.log(err)
   }
   return combinedData
