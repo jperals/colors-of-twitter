@@ -8,10 +8,24 @@ const parseArgs = require('minimist')
 const {collectLocation, initTargetCollection} = require('./process-data.js')
 const Twitter = require('twitter')
 const {connectToDatabase, handleRejection} = require('./common.js')
+let nRecords
+let nRecordsOld
+let nStarts = 0
+let keepAliveInterval
+let reportInterval
 
-initStreamAndDatabase()
-  .catch(handleRejection)
-  .then(collectTweets)
+start()
+
+function start() {
+  nRecords = 0
+  nRecordsOld = 0
+  nStarts += 1
+  initStreamAndDatabase()
+    .catch(handleRejection)
+    .then(collectTweets)
+    .then(keepAlive)
+    .then(report)
+}
 
 function initStreamAndDatabase() {
   return Promise.all([
@@ -36,16 +50,15 @@ function initStream() {
 }
 
 function collectTweets([db, stream]) {
-  let nRecords = 0
   const args = parseArgs(process.argv.slice(2))
-  if(args.raw) {
+  if (args.raw) {
     const collectionName = getCollectionName()
     console.log('Writing to collection', collectionName)
     console.log('Collecting tweets...')
     const collection = db.collection(collectionName)
     stream.on('data', function (event) {
       try {
-        if(isTweet(event)) {
+        if (isTweet(event)) {
           collection.insertOne({
             tweet: event
           })
@@ -53,7 +66,7 @@ function collectTweets([db, stream]) {
               nRecords += 1
             })
         }
-      } catch(error) {
+      } catch (error) {
         console.error(error)
       }
     })
@@ -82,10 +95,7 @@ function collectTweets([db, stream]) {
   stream.on('error', (error) => {
     console.error(error)
   })
-  const initialTime = moment()
-  setInterval(() => {
-    printProgress({initialTime, nRecords})
-  }, 1000)
+  return stream
 }
 
 function getCollectionName() {
@@ -98,21 +108,41 @@ function isTweet(event) {
   return event && typeof event.text === 'string'
 }
 
-function printProgress({initialTime, nRecords}){
+function printProgress({initialTime, nRecords}) {
   const nStr = nRecords.toLocaleString()
   const now = moment()
   const elapsedTimeStr = now.from(initialTime)
   const elapedTimeMs = now - initialTime
-  const tweetsPerSecond = nRecords / (elapedTimeMs/1000)
-  if(process && process.stdout && typeof process.stdout.clearLine === 'function') {
+  const tweetsPerSecond = nRecords / (elapedTimeMs / 1000)
+  if (process && process.stdout && typeof process.stdout.clearLine === 'function') {
     process.stdout.clearLine()
     process.stdout.cursorTo(0)
     process.stdout.write('Collected ' + nStr + ' tweets ' + elapsedTimeStr + ' (' + nDecimals(tweetsPerSecond, 2) + ' tweets per second).')
   }
 }
 
-function nDecimals (n, decimals = 2) {
+function nDecimals(n, decimals = 2) {
   if (typeof n !== 'number') return n
   const factor = Math.pow(10, decimals)
   return Math.round(n * factor) / factor
+}
+
+function keepAlive() {
+  clearInterval(keepAliveInterval)
+  keepAliveInterval = setInterval(() => {
+    if (nRecords <= nRecordsOld) {
+      console.log('It seems that either the Twitter stream or database connection got stuck. Restarting both...')
+      console.log('Number of restarts so far:', nStarts)
+      start()
+    }
+    nRecordsOld = nRecords
+  }, 10000)
+}
+
+function report() {
+  const initialTime = moment()
+  clearInterval(reportInterval)
+  reportInterval = setInterval(() => {
+    printProgress({initialTime, nRecords})
+  }, 1000)
 }
