@@ -112,8 +112,8 @@ function printProgress({initialTime, nRecords}) {
   const nStr = nRecords.toLocaleString()
   const now = moment()
   const elapsedTimeStr = now.from(initialTime)
-  const elapedTimeMs = now - initialTime
-  const tweetsPerSecond = nRecords / (elapedTimeMs / 1000)
+  const elapsedTimeMs = now - initialTime
+  const tweetsPerSecond = nRecords / (elapsedTimeMs / 1000)
   if (process && process.stdout && typeof process.stdout.clearLine === 'function') {
     process.stdout.clearLine()
     process.stdout.cursorTo(0)
