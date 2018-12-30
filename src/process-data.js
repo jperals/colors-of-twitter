@@ -53,7 +53,8 @@ function collectLocation({targetCollection, record}) {
               languageData: {
                 cld: {
                   languages: languagesData,
-                  mainLanguage: getMainLanguage(languagesData)
+                  mainLanguage: getMainLanguage(languagesData),
+                  result: getAggregatedResult(languagesData)
                 }
               }
             }
@@ -65,7 +66,8 @@ function collectLocation({targetCollection, record}) {
               languageData: {
                 cld: {
                   languages: languagesData,
-                  mainLanguage: detectedLanguage
+                  mainLanguage: detectedLanguage,
+                  result: getAggregatedResult(languagesData)
                 }
               },
               placeName: record.tweet.place.full_name
@@ -163,6 +165,13 @@ function cleanParam() {
 
 function getMainLanguage(languageData) {
   return Object.keys(languageData).sort((key1, key2) => languageData[key2].score - languageData[key1].score)[0]
+}
+
+function getAggregatedResult(languageData) {
+  return {
+    score: Object.keys(languageData).sort((key1, key2) => languageData[key2].score - languageData[key1].score)[0],
+    times: Object.keys(languageData).sort((key1, key2) => languageData[key2].times - languageData[key1].times)[0]
+  }
 }
 
 module.exports = {
