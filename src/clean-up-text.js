@@ -21,8 +21,13 @@ function removeUrls(str) {
   return str
 }
 
+function removeUserMentions(str) {
+  return str
+}
+
 module.exports = {
   cleanUp,
   removeEmojis,
-  removeUrls
+  removeUrls,
+  removeUserMentions
 }
