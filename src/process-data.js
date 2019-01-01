@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-const cld = require('cld')
+const detectLanguage = require('./detect-language')
 const parseArgs = require('minimist')
 
 const minTweetLength = Number(process.env.MIN_TWEET_LENGTH)
@@ -131,22 +131,6 @@ function combineLanguageData(existingData, newData) {
     console.log(err)
   }
   return combinedData
-}
-
-// Promise wrapper for cld.detect
-function detectLanguage(text) {
-  return new Promise((resolve, reject) => {
-    cld.detect(text, (err, result) => {
-      // Also resolve on error because we don't want to log an error
-      // every time the translation fails. That's okay.
-      resolve(result)
-      if (err) {
-        resolve()
-      } else {
-        resolve(result)
-      }
-    })
-  })
 }
 
 function getBoundingBoxId(record) {
