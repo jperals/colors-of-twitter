@@ -2,6 +2,7 @@
 
 const {connectToDatabase, handleRejection} = require('./common.js')
 const leftPad = require('left-pad')
+const {nDecimals} = require('./math')
 const parseArgs = require('minimist')
 const moment = require('moment')
 const {collectLocation, initTargetCollection} = require('./process-data.js')
@@ -98,12 +99,6 @@ function printProgress({initialTime, nRecords}) {
     process.stdout.cursorTo(0)
     process.stdout.write('Collected ' + nStr + ' tweets ' + elapsedTimeStr + ' (' + nDecimals(tweetsPerSecond, 2) + ' tweets per second).')
   }
-}
-
-function nDecimals(n, decimals = 2) {
-  if (typeof n !== 'number') return n
-  const factor = Math.pow(10, decimals)
-  return Math.round(n * factor) / factor
 }
 
 function keepAlive() {
