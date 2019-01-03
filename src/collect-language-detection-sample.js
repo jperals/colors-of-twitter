@@ -27,16 +27,21 @@ const progressBar = new ProgressBar(':bar :percent | :current/:total | ETA: :eta
   total: limit
 })
 
+console.log('Collecting tweets...')
+
 stream.on('data', function(event) {
-  if(!isTweet(event)) {
+  if(!isTweet(event) || limit <= nTweets) {
     return
   }
-  sample.push({
+  const dataSet = {
     index: nTweets,
-    text: event.text,
-    placeName: event.place.full_name,
-    lang: ""
-  })
+    text: event.text
+  }
+  if(event.place && event.place.full_name) {
+    dataSet.placeName = event.place.full_name
+  }
+  dataSet.lang = ""
+  sample.push(dataSet)
   nTweets += 1
   progressBar.tick()
   if(limit <= nTweets) {
