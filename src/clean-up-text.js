@@ -1,33 +1,41 @@
 const emojiRegex = require('emoji-regex')
+const hashtagRegex = require('hashtag-regex')
+
+// Twitter username mention regex
+// https://stackoverflow.com/questions/8650007/regular-expression-for-twitter-username
+const userMentionRegex = /(^|[^@\w])@(\w{1,15})\b/g
+// URL regex
+// https://knowledge.safe.com/questions/29604/regex-to-extract-url-from-tweet.html
+const urlRegex = new RegExp('(https?:\\/\\/)(\\s)?(www\\.)?(\\s?)(\\w+\\.)*([\\w\\-\\s]+\\/)*([\\w-]+)\\/?')
 
 function cleanUp(str) {
-  return removeEmojis(removeUrls(str))
+  return removeEmojis(removeHashtags(removeUrls(removeUserMentions(str))))
 }
 
 function removeEmojis(str) {
-  let match
-  while(match = emojiRegex().exec(str)) {
-    const emoji = match[0]
-    const index = match.index
-    const length = emoji.length
-    const part1 = str.substr(0, index)
-    const part2 = str.substr(index + length)
-    str = part1.concat(part2)
-  }
-  return str
+  return removeByRegex(str, emojiRegex())
+}
+
+function removeHashtags(str) {
+  return removeByRegex(str, hashtagRegex())
+}
+
+function removeByRegex(str, regex) {
+  return str.replace(regex, '')
 }
 
 function removeUrls(str) {
-  return str
+  return removeByRegex(str, urlRegex)
 }
 
 function removeUserMentions(str) {
-  return str
+  return removeByRegex(str, userMentionRegex)
 }
 
 module.exports = {
   cleanUp,
   removeEmojis,
+  removeHashtags,
   removeUrls,
   removeUserMentions
 }
