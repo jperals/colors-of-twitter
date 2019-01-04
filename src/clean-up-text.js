@@ -6,7 +6,7 @@ const hashtagRegex = require('hashtag-regex')
 const userMentionRegex = /(^|[^@\w])@(\w{1,15})\b/g
 // URL regex
 // https://knowledge.safe.com/questions/29604/regex-to-extract-url-from-tweet.html
-const urlRegex = new RegExp('(https?:\\/\\/)(\\s)?(www\\.)?(\\s?)(\\w+\\.)*([\\w\\-\\s]+\\/)*([\\w-]+)\\/?')
+const urlRegex = /(https?:\/\/)(\s)?(www\.)?(\s?)(\w+\.)*([\w\-\s]+\/)*([\w-]+)\/?/
 
 function cleanUp(str) {
   return removeEmojis(removeHashtags(removeUrls(removeUserMentions(str))))
