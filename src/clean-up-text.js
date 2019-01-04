@@ -9,7 +9,7 @@ const userMentionRegex = /(^|[^@\w])@(\w{1,15})\b/g
 const urlRegex = /(https?:\/\/)(\s)?(www\.)?(\s?)(\w+\.)*([\w\-\s]+\/)*([\w-]+)\/?/
 
 function cleanUp(str) {
-  return removeEmojis(removeHashtags(removeUrls(removeUserMentions(str))))
+  return removeWhiteSpace(removeEmojis(removeHashtags(removeUrls(removeUserMentions(str)))))
 }
 
 function removeEmojis(str) {
@@ -30,6 +30,10 @@ function removeUrls(str) {
 
 function removeUserMentions(str) {
   return removeByRegex(str, userMentionRegex)
+}
+
+function removeWhiteSpace(str) {
+  return str.replace(/\s\s+/g, ' ').trim()
 }
 
 module.exports = {
