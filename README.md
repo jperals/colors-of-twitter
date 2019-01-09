@@ -4,7 +4,9 @@
 
 This is a set of scripts that generate language maps out of Twitter data.
 
-The maps nor the data themselves are not provided here, the idea is that you can generate them yourself with the instructions below.
+![Sample image](./sample.png)
+
+Nor the maps nor the data themselves are provided here, the idea is that you can generate them yourself with the instructions below.
 
 ## Initial setup
 
@@ -66,7 +68,7 @@ If you want to manually fine tune your maps, one way to do it is to apply bounda
 
 An easy way yo do it is to draw the corresponding shapes using a service like `geojson.io` and copy-paste the result to a JSON file named after the language code, just like the existing `en.json` file that you can see.
 
-I am applying this technique to the English language to compensate that it's used so much on the Internet; but personally I have preferred to not go further with this manual intervention, which could get really tricky really quickly.
+I am applying this technique to the English language to compensate that it's used so much on the Internet; but personally I have preferred to not go further with this in other languages, as this could get really tricky really quickly.
 
 You can bypass this feature altogether when generating PNG maps by passing a `--raw` parameter:
 
