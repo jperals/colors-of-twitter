@@ -14,6 +14,10 @@ const minTweets = Number(process.env.MIN_TWEETS) || 0
 const scaleFactor = Number(process.env.SCALE_FACTOR) || 1
 
 const languageDetectionEngine = 'cld'
+// 👇 Possible values for `mainLanguageCriterion`: 'times' or 'score'
+// 'times' refers to how many times a language was detected for each location;
+// 'score' is the aggregated score of the language in that location.
+const mainLanguageCriterion = 'times'
 
 const args = process.argv.slice(2)
 
@@ -64,7 +68,7 @@ function scaleVoronoiSitesUp(sites, factor = scaleFactor) {
 
 function addVoronoiSite(sites, item) {
   const coordinates = getRecordMiddlePointCoordinate(item)
-  return getLanguage(item)
+  return getMainLanguage(item)
     .then(languageCode => {
       if (languageCode) {
         sites.push({
@@ -95,42 +99,32 @@ function computeVoronoiDiagram(sites) {
   return diagram
 }
 
-function getLanguage(record) {
+function getMainLanguage(record) {
   if (!hasEnoughData(record)) return new Promise((resolve) => resolve())
   const languageData = record.languageData[languageDetectionEngine]
-  const mainLanguage = getRecordMainLanguage(record)
+  const languagesObj = languageData.languages
+  // Sort them by our main language criterion (time or score)
+  const languageCodesSorted = Object.keys(languagesObj).sort((key1, key2) => languagesObj[key2][mainLanguageCriterion] - languagesObj[key1][mainLanguageCriterion])
   const coordinateLatLng = getRecordMiddlePointCoordinate(record)
   const coordinateXY = [coordinateLatLng.lng, coordinateLatLng.lat]
-  return isOutsideItsFences(coordinateXY, mainLanguage)
-    .then(isOutside => {
-      if (!isExcluded(mainLanguage) && !isOutside) {
-        return mainLanguage
-      } else {
-        // Find an alternative language from the list of detected
-        // languages for this location
-        const languagesObj = languageData.languages
-        // Sort them by score and return the first viable one
-        const languageCodesSorted = Object.keys(languagesObj).sort((key1, key2) => languagesObj[key2].score - languagesObj[key1].score)
-        return getAlternativeLanguage({coordinateXY, languageCodes: languageCodesSorted})
-      }
-    })
+  return getMainLanguageRefined({coordinateXY, languageCodes: languageCodesSorted})
 }
 
-function getAlternativeLanguage({coordinateXY, languageCodes, index = 0}) {
+function getMainLanguageRefined({coordinateXY, languageCodes, index = 0}) {
   const languageCode = languageCodes[index]
   if (languageCodes.length <= index) {
     // No viable alternative was found
-    return
+    return new Promise((resolve) => resolve())
   }
   if (isExcluded(languageCode)) {
     // Try the next one
-    return getAlternativeLanguage({coordinateXY, languageCodes, index: index + 1})
+    return getMainLanguageRefined({coordinateXY, languageCodes, index: index + 1})
   } else {
     return isOutsideItsFences(coordinateXY, languageCode)
       .then(isOutside => {
         if (isOutside) {
           // Try the next one
-          return getAlternativeLanguage({coordinateXY, languageCodes, index: index + 1})
+          return getMainLanguageRefined({coordinateXY, languageCodes, index: index + 1})
         } else {
           // Good alternative
           return languageCode
@@ -158,7 +152,7 @@ function hasEnoughData(record) {
 }
 
 function isOutsideItsFences(coordinate, languageCode) {
-  if(ignoreFences) {
+  if (ignoreFences) {
     return new Promise(resolve => resolve(false))
   }
   return getLanguageFences(languageCode)
@@ -174,10 +168,6 @@ function isOutsideItsFences(coordinate, languageCode) {
     .catch((err) => {
       return false
     })
-}
-
-function getRecordMainLanguage(record) {
-  return record.languageData[languageDetectionEngine].mainLanguage
 }
 
 function isExcluded(language) {
