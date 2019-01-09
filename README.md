@@ -14,7 +14,7 @@ Nor the maps nor the data themselves are provided here, the idea is that you can
 
 - Have a MongoDB instance running
 
-- Copy `.env.sample` as `.env` and add configure the parameters accordingly
+- Copy `.env.sample` as `.env` and modify the parameters accordingly
 
 - Run `npm install`
 
