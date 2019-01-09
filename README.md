@@ -48,7 +48,7 @@ You can pass some optional parameters to define the image width in pixels (other
 npm run png -- --width=1000 --box=-27,72,45,34
 ```
 
-Aliases for the bounding box can also be set in [./src/app/bounding-boxes.json](./src/app/bounding-boxes.json):
+Aliases for the bounding box can also be set in [./src/bounding-boxes.json](./src/bounding-boxes.json):
 
 ```sh
 npm run png -- --width=1000 --box=europe
@@ -64,7 +64,7 @@ npm run geojson
 
 ## Artificially limiting language boundaries
 
-If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./src/app/fences](./src/app/fences).
+If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./src/fences](./src/fences).
 
 An easy way yo do it is to draw the corresponding shapes using a service like `geojson.io` and copy-paste the result to a JSON file named after the language code, just like the existing `en.json` file that you can see.
 
