@@ -66,8 +66,10 @@ function collectTweets([db, stream]) {
                   tweet: event
                 }
               })
-                .then(() => {
-                  nRecords += 1
+                .then(collected => {
+                  if(collected) {
+                    nRecords += 1
+                  }
                 })
             }
           } catch (error) {
