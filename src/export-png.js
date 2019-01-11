@@ -75,7 +75,7 @@ function drawDiagram(diagram) {
 }
 
 function drawSea(diagram) {
-  return loadImage(path.join(__dirname, 'sea.png'))
+  return loadImage(path.join(__dirname, 'water.png'))
     .then(image => {
       const ctx = canvas.getContext('2d')
       const sourceCropTopLeft = coordToPx({lng: left, lat: top}, image)
