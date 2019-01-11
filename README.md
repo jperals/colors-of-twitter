@@ -62,6 +62,20 @@ This will generate a GeoJSON map that can be shown with mapping tools like Leafl
 npm run geojson
 ```
 
+## Excluding languages from the map
+
+You can set languages to be excluded in the `EXCLUDE_LANGUAGES` variable in your environment (this will affect both PNG and GeoJSON maps):
+
+```sh
+EXCLUDE_LANGUAGES=eo,ia,ie,tlh,la,xx-Qaai
+```
+
+Alternatively, when generating PNG maps you can override this setting by passing an `--exclude` parameter:
+
+```sh
+npm run png --exclude=en,ja,es
+```
+
 ## Artificially limiting language boundaries
 
 If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./src/fences](./src/fences).
