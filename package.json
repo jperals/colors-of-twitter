@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "collect": "node src/collect.js",
-    "geojson": "node src/map.js --geojson && cp output/language-areas.json src/app/data",
+    "geojson": "node src/map.js --geojson",
     "legend": "node src/legend.js --json && cp output/legend.json src/app/data",
     "png": "node src/map.js --png",
     "prepare-maps": "node src/prepare-blank-maps.js",
