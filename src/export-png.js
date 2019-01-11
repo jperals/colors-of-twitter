@@ -78,10 +78,12 @@ function drawSea(diagram) {
   return loadImage(path.join(__dirname, 'sea.png'))
     .then(image => {
       const ctx = canvas.getContext('2d')
-      const topLeft = projectPoint({x: -180, y: 90})
-      const relativeBottomRight = projectPoint({x: 180, y: -90})
-      const bottomRight = {x: relativeBottomRight.x - topLeft.x, y: relativeBottomRight.y - topLeft.y}
-      ctx.drawImage(image, topLeft.x, topLeft.y, bottomRight.x, bottomRight.y)
+      const sourceCropTopLeft = coordToPx({lng: left, lat: top}, image)
+      const sourceCropBottomRight = coordToPx({lng: right, lat: bottom}, image)
+      const sourceSize = {width: sourceCropBottomRight.x - sourceCropTopLeft.x, height: sourceCropBottomRight.y - sourceCropTopLeft.y}
+      const targetSize = {width, height}
+      const targetTopLeft = {x: 0, y: 0}
+      ctx.drawImage(image, sourceCropTopLeft.x, sourceCropTopLeft.y, sourceSize.width, sourceSize.height, targetTopLeft.x, targetTopLeft.y, targetSize.width, targetSize.height)
       return diagram
     })
 }
@@ -115,4 +117,11 @@ function projectPoint(originalPoint) {
   const x = (originalPoint.x - left) * factorX
   const y = (top - originalPoint.y) * factorY
   return {x, y}
+}
+
+function coordToPx(point, image) {
+  return {
+    x: (180 + point.lng)*(image.width/360),
+    y: (90 - point.lat)*(image.height/180)
+  }
 }
