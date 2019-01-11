@@ -1,0 +1,20 @@
+{
+  "catalan": {
+    "boundingBox": [-1.5, 43.5, 10, 37.5],
+    "languages": ["ca", "co", "es", "fr", "it", "oc"]
+  },
+  "europe": {
+    "boundingBox": [-27, 72, 45, 34],
+    "languages": ["ca", "co", "de", "en", "es", "eu", "fr", "gl", "it", "oc", "pt"]
+  },
+  "gulf-of-guinea": {
+    "boundingBox": [7, 20, 20, 2]
+  },
+  "india": {
+    "boundingBox": [65, 37, 95, 3],
+    "languages": ["hi"]
+  },
+  "world": {
+    "boundingBox": [-173, 86, 180, -60]
+  }
+}

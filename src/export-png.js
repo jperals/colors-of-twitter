@@ -1,13 +1,14 @@
 require('dotenv').config()
 
-const boxAliases = require('./bounding-boxes')
 const {createCanvas, loadImage} = require('canvas')
 const fs = require('fs')
 const languageColor = require('./language-color')
 const leftPad = require('left-pad')
+const maps = require('./maps')
 const parseArgs = require('minimist')
 const path = require('path')
 
+const legendWidth = 100
 let width
 let height
 let left
@@ -17,8 +18,8 @@ let bottom
 const args = parseArgs(process.argv.slice(2))
 const boundingBoxStr = args.box
 if(boundingBoxStr) {
-  if(boxAliases[boundingBoxStr]) {
-    [left, top, right, bottom] = boxAliases[boundingBoxStr]
+  if(maps[boundingBoxStr] && maps[boundingBoxStr].boundingBox) {
+    [left, top, right, bottom] = maps[boundingBoxStr].boundingBox
   }
   else {
     [left, top, right, bottom] = boundingBoxStr.split(',').map(str => Number(str))
