@@ -3,12 +3,13 @@ require('dotenv').config()
 const {createCanvas, loadImage} = require('canvas')
 const fs = require('fs')
 const languageColor = require('./language-color')
+const languageName = require('./language-name')
 const leftPad = require('left-pad')
 const maps = require('./maps')
 const parseArgs = require('minimist')
 const path = require('path')
 
-const legendWidth = 100
+const legendWidth = 200
 let width
 let height
 let left
@@ -46,6 +47,7 @@ module.exports = function (voronoiDiagram) {
   return new Promise((resolve) => resolve(voronoiDiagram))
     .then(drawDiagram)
     .then(drawSea)
+    .then(drawLegend)
     .then(exportPng)
 }
 
@@ -76,6 +78,7 @@ function drawDiagram(diagram) {
 }
 
 function drawSea(diagram) {
+  console.log('Drawing the sea on top...')
   return loadImage(path.join(__dirname, 'water.png'))
     .then(image => {
       const ctx = canvas.getContext('2d')
@@ -125,4 +128,27 @@ function coordToPx(point, image) {
     x: (180 + point.lng)*(image.width/360),
     y: (90 - point.lat)*(image.height/180)
   }
+}
+
+function drawLegend(diagram) {
+  console.log('Drawing the legend...')
+  if(boundingBoxStr && maps[boundingBoxStr] && maps[boundingBoxStr].languages) {
+    const ctx = canvas.getContext('2d')
+    ctx.fillStyle = 'white'
+    ctx.fillRect(width - legendWidth, 0, legendWidth, height)
+    ctx.font = '14px sans-serif'
+    const languages = maps[boundingBoxStr].languages
+    const offsetX = width - legendWidth + 10
+    let offsetY = 10
+    for(const languageCode of languages) {
+      const color = languageColor(languageCode)
+      ctx.fillStyle = color
+      ctx.fillRect(offsetX, offsetY, 36, 24)
+      const name = languageName(languageCode)
+      ctx.fillStyle = '#444'
+      ctx.fillText(name, offsetX + 45, offsetY + 18)
+      offsetY += 40
+    }
+  }
+  return diagram
 }
