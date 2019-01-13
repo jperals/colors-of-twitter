@@ -33,15 +33,22 @@ if(boundingBoxStr) {
 }
 if(args.width) {
   width = Math.abs(args.width)
-  height = Math.abs(width * (top - bottom) / (right - left))
 } else {
   width = Number(process.env.WIDTH)
   height = Number(process.env.HEIGHT)
 }
+if(shouldDrawLegend()) {
+  width -= legendWidth
+}
+if(args.width) {
+  height = Math.abs(width * (top - bottom) / (right - left))
+}
+
 const factorX = width / (right - left)
 const factorY = height / (top - bottom)
 
-const canvas = createCanvas(width, height)
+const canvasWidth = shouldDrawLegend() ? width + legendWidth : width
+const canvas = createCanvas(canvasWidth, height)
 
 module.exports = function (voronoiDiagram) {
   return new Promise((resolve) => resolve(voronoiDiagram))
@@ -131,14 +138,14 @@ function coordToPx(point, image) {
 }
 
 function drawLegend(diagram) {
-  console.log('Drawing the legend...')
-  if(boundingBoxStr && maps[boundingBoxStr] && maps[boundingBoxStr].languages) {
+  if(shouldDrawLegend()) {
+    console.log('Drawing the legend...')
     const ctx = canvas.getContext('2d')
     ctx.fillStyle = 'white'
-    ctx.fillRect(width - legendWidth, 0, legendWidth, height)
+    ctx.fillRect(width, 0, legendWidth, height)
     ctx.font = '14px sans-serif'
     const languages = maps[boundingBoxStr].languages
-    const offsetX = width - legendWidth + 10
+    const offsetX = width + 10
     let offsetY = 10
     for(const languageCode of languages) {
       const color = languageColor(languageCode)
@@ -151,4 +158,8 @@ function drawLegend(diagram) {
     }
   }
   return diagram
+}
+
+function shouldDrawLegend() {
+  return boundingBoxStr && maps[boundingBoxStr] && maps[boundingBoxStr].languages
 }
