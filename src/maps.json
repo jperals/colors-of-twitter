@@ -1,0 +1,20 @@
+{
+  "catalan": {
+    "boundingBox": [-1.5, 43.5, 10, 37.5],
+    "languages": ["ca", "co", "es", "fr", "it", "oc"]
+  },
+  "europe": {
+    "boundingBox": [-27, 72, 45, 31],
+    "languages": ["be", "bg", "br", "bs", "ca", "co", "cs", "cy", "da", "de", "el", "en", "es", "et", "eu", "fi", "fo", "fr", "fy", "ga", "gd", "gl", "gv", "hr", "hu", "is", "it", "lb", "lt", "lv", "mk", "mt", "nl", "no", "nn", "oc", "ro", "pl", "pt", "ru", "sco", "sk", "sq", "sr", "sr-ME", "sv", "tr", "tt", "uk", "ur", "yi"]
+  },
+  "gulf-of-guinea": {
+    "boundingBox": [7, 20, 20, 2]
+  },
+  "india": {
+    "boundingBox": [65, 37, 95, 3],
+    "languages": ["bn", "bo", "hi", "kn", "or", "pa", "raj", "sa", "ta"]
+  },
+  "world": {
+    "boundingBox": [-173, 86, 180, -60]
+  }
+}

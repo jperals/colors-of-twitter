@@ -1,7 +1,13 @@
+require('dotenv').config()
 const MongoClient = require('mongodb').MongoClient
 
 function connectToDatabase() {
   return MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
+    .then(client => {
+      const db = client.db(process.env.DATABASE_NAME)
+      console.log('Connected to the database')
+      return db
+    })
 }
 
 function finish() {
