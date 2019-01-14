@@ -23,7 +23,16 @@ Promise.all([
           fillOpacity: 0.7,
           weight: 0
         }
-      }
+      },
+      onEachFeature: (feature, layer) => {
+        const langName = languageName(layer.feature.properties.language, legend)
+        const articleName = langName + '_language'
+        layer.on({
+          click: () => {
+            window.open('https://en.wikipedia.org/wiki/' + articleName, '_blank')
+          }
+        })
+    }
     }).bindTooltip(function(layer) {
       return languageName(layer.feature.properties.language, legend)
     }, {
