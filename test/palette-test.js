@@ -12,6 +12,8 @@ describe('The palette', () => {
     printEvery(palette.saturationAray.length)
     console.log('Same lightness factor, varying saturation factor:')
     printEvery(palette.lightnessArray.length)
+    console.log('Same saturation factor, same lightness factor:')
+    printEvery(palette.saturationAray.length*palette.lightnessArray.length)
   })
 })
 
