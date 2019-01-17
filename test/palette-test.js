@@ -1,7 +1,8 @@
 const chalk = require('chalk')
 const {list} = require('../src/languages.js')
+const length = list.length
 const Palette = require('../src/palette.js')
-const palette = new Palette({length: list.length})
+const palette = new Palette({length})
 
 describe('The palette', () => {
   it('should contain distinct colors', () => {
@@ -16,7 +17,7 @@ describe('The palette', () => {
 
 function printEvery(n) {
   for(let initialIndex = 0; initialIndex < n; initialIndex++) {
-    for(let index = initialIndex; index < list.length; index += n) {
+    for(let index = initialIndex; index < length; index += n) {
       const color = palette.colors[index]
       const colorize = chalk.hex(color)
       process.stdout.write(colorize('█'))
