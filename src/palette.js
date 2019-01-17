@@ -5,7 +5,7 @@ const defaultBasePalette = ['crimson', 'orange', 'limegreen', 'darkcyan', 'royal
 
 class Palette {
   constructor({
-                length,
+                length = 10,
                 basePalette = defaultBasePalette,
                 lightnessArray = defaultLightnessArray,
     saturationArray = defaultSaturationArray
