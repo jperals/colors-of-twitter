@@ -1,30 +1,35 @@
-const cld = require('cld')
-const chroma = require('chroma-js')
 const {list} = require('./languages.js')
-// Sort by language code
+const Palette = require('./palette.js')
 const length = list.length
-const saturationArray = ['0.3', '0.8']
-const ligthnessArray = ['0.4', '0.55', '0.7']
-
-const scale = chroma.scale(['crimson', 'orange', 'limegreen', 'darkcyan', 'royalblue', 'mediumpurple', 'mediumorchid', 'darksalmon', 'chocolate'])
-const palette = scale.colors(length)
-
-for(let i = 0; i < length; i++) {
-  const lightness = ligthnessArray[i % ligthnessArray.length]
-  const saturation = saturationArray[i % saturationArray.length]
-  palette[i] = chroma(palette[i]).set('hsl.s', saturation).set('hsl.l', lightness).hex()
-}
-
+const palette = new Palette({length: list.length})
 const colorByLanguage = {}
 const fallbackColor = 'hsl(200, 0%, 70%)'
+const optimized = optimizePaletteOrder(palette)
 
 for (const i in list) {
   const language = list[i]
-  colorByLanguage[language.code] = palette[i]
+  colorByLanguage[language.code] = optimized[i]
 }
 
 function languageColor(languageCode) {
   return colorByLanguage[languageCode] || fallbackColor
+}
+
+function optimizePaletteOrder(palette) {
+  const set = new Set(palette)
+  const optimized = []
+  let currentStep = 0
+  for(let i = 0; i < length; i++) {
+    const colorToAdd = Array.from(set)[currentStep]
+    optimized.push(colorToAdd)
+    set.delete(colorToAdd)
+    const step = Math.round(set.size / palette.basePalette.length)
+    currentStep += step + 2
+    if(set.size <= currentStep) {
+      currentStep = 0
+    }
+  }
+  return optimized
 }
 
 module.exports = languageColor
