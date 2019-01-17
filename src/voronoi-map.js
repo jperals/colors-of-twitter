@@ -1,3 +1,4 @@
+require('dotenv').config()
 const {doInBatches} = require('./db')
 const {getLanguageFences} = require('./fences')
 const parseArgs = require('minimist')
@@ -19,23 +20,18 @@ const languageDetectionEngine = 'cld'
 // 'score' is the aggregated score of the language in that location.
 const mainLanguageCriterion = 'times'
 
-const args = process.argv.slice(2)
+const { excludedLanguages, isExcluded } = require('./languages')
+if (excludedLanguages && excludedLanguages.length) {
+  console.log('Excluding languages:', excludedLanguages.join(', '))
+}
 
-const ignoreFences = Boolean(parseArgs(args).raw)
+const args = parseArgs(process.argv.slice(2))
 
-let excludedLanguages
+const ignoreFences = Boolean(args).raw
 
 module.exports = generateVoronoiMap
 
 function getCollection(db) {
-  const excludedLanguagesStr = parseArgs(process.argv.slice(2)).exclude || process.env.EXCLUDE_LANGUAGES
-  if (excludedLanguagesStr) {
-    excludedLanguages = excludedLanguagesStr.split(',')
-    if (excludedLanguages && excludedLanguages.length) {
-      console.log('Excluding languages:', excludedLanguages.join(', '))
-    }
-  }
-  console.log('Connected to the database')
   return db.collection(process.env.COLLECTION_LOCATIONS)
 }
 
@@ -169,8 +165,3 @@ function isOutsideItsFences(coordinate, languageCode) {
       return false
     })
 }
-
-function isExcluded(language) {
-  return excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(language) !== -1
-}
-

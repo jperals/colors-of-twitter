@@ -1,27 +1,30 @@
-const ColorHash = require('color-hash')
+const cld = require('cld')
 const chroma = require('chroma-js')
-const colorHash = new ColorHash()
-const minLuminance = 0.3
-const maxLuminance = 0.6
-const minSaturation = 0.4
-const maxSaturation = 0.6
+const {list} = require('./languages.js')
+// Sort by language code
+const length = list.length
+const saturationArray = ['0.3', '0.8']
+const ligthnessArray = ['0.4', '0.55', '0.7']
+
+const scale = chroma.scale(['crimson', 'orange', 'limegreen', 'darkcyan', 'royalblue', 'mediumpurple', 'mediumorchid', 'darksalmon', 'chocolate'])
+const palette = scale.colors(length)
+
+for(let i = 0; i < length; i++) {
+  const lightness = ligthnessArray[i % ligthnessArray.length]
+  const saturation = saturationArray[i % saturationArray.length]
+  palette[i] = chroma(palette[i]).set('hsl.s', saturation).set('hsl.l', lightness).hex()
+}
+
+const colorByLanguage = {}
+const fallbackColor = 'hsl(200, 0%, 70%)'
+
+for (const i in list) {
+  const language = list[i]
+  colorByLanguage[language.code] = palette[i]
+}
 
 function languageColor(languageCode) {
-  const hashColor = colorHash.hex(languageCode)
-  const chromaColor = chroma(hashColor)
-  const saturation = chromaColor.get('hsv.s')
-  if(saturation < minSaturation) {
-    chromaColor.set('hsv.s', minSaturation)
-  } else if(maxSaturation < saturation) {
-    chromaColor.set('hsv.s', maxSaturation)
-  }
-  const luminance = chromaColor.get('lab.l')
-  if(luminance < minLuminance) {
-    chromaColor.set('lab.l', minLuminance)
-  } else if(maxLuminance < luminance) {
-    chromaColor.set('lab.l', maxLuminance)
-  }
-  return chromaColor.hex()
+  return colorByLanguage[languageCode] || fallbackColor
 }
 
 module.exports = languageColor

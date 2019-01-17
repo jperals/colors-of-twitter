@@ -19,7 +19,7 @@ function getLanguages() {
   return new Promise((resolve, reject) => {
     const languages = {}
     // Reverse key-value relationship
-    for (const name in cld.LANGUAGES) {
+    for (const name of cld.DETECTED_LANGUAGES) {
       const languageCode = cld.LANGUAGES[name]
       const prettyLanguageName = languageName(languageCode)
       languages[languageCode] = {
