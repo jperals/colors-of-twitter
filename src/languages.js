@@ -1,6 +1,7 @@
 require('dotenv').config()
 const cld = require('cld')
 const parseArgs = require('minimist')
+const languageOrder = require('./language-order.json')
 
 const args = parseArgs(process.argv.slice(2))
 let excludedLanguages = []
@@ -16,14 +17,16 @@ const list = cld.DETECTED_LANGUAGES.map(languageName => {
   obj.code = languageCode
   obj.name = languageName
   return obj
-}).filter(language => !isExcluded(language.code)).sort((a,b) => {
-  if(a.code < b.code) {
-    return -1
-  } else if(b.code < a.code) {
-    return 1
-  }
-  return 0
-})
+}).filter(language => !isExcluded(language.code))
+  .sort((a, b) => {
+    if (a.code < b.code) {
+      return -1
+    }
+    if (b.code < a.code) {
+      return 1
+    }
+    return 0
+  })
 
 function isExcluded(language) {
   return excludedLanguages && excludedLanguages.length && excludedLanguages.indexOf(language) !== -1
