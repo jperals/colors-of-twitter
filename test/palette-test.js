@@ -8,9 +8,9 @@ describe('The palette', () => {
     console.log('Full palette:')
     printEvery(1)
     console.log('Same saturation factor, varying lightness factor:')
-    printEvery(palette.lightnessArray.length)
-    console.log('Same lightness factor, varying saturation factor:')
     printEvery(palette.saturationAray.length)
+    console.log('Same lightness factor, varying saturation factor:')
+    printEvery(palette.lightnessArray.length)
   })
 })
 
