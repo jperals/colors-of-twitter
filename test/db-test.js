@@ -16,12 +16,12 @@ describe('doInBatches', () => {
       })
     }
 
-    MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
+    MongoClient.connect(process.env.DATABASE_URL_TEST, {useNewUrlParser: true})
       .catch(err => {
         done(err)
       })
       .then(client => {
-        const db = client.db(process.env.DATABASE_NAME)
+        const db = client.db(process.env.DATABASE_NAME_TEST)
         const collection = db.collection(process.env.COLLECTION_TEST)
         return doInBatches(countUp, {collection, limit, batchSize})
       })
@@ -44,12 +44,12 @@ describe('doInBatches', () => {
       })
     }
 
-    MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
+    MongoClient.connect(process.env.DATABASE_URL_TEST, {useNewUrlParser: true})
       .catch(err => {
         done(err)
       })
       .then(client => {
-        const db = client.db(process.env.DATABASE_NAME)
+        const db = client.db(process.env.DATABASE_NAME_TEST)
         const collection = db.collection(process.env.COLLECTION_TEST)
         return doInBatches(collectId, {collection, limit, batchSize, inSequence: true})
       })
@@ -69,12 +69,12 @@ describe('doInBatches', () => {
     function countUpSync() {
       count += 1
     }
-    MongoClient.connect(process.env.DATABASE_URL, {useNewUrlParser: true})
+    MongoClient.connect(process.env.DATABASE_URL_TEST, {useNewUrlParser: true})
       .catch(err => {
         done(err)
       })
       .then(client => {
-        const db = client.db(process.env.DATABASE_NAME)
+        const db = client.db(process.env.DATABASE_NAME_TEST)
         const collection = db.collection(process.env.COLLECTION_TEST)
         return doInBatches(countUpSync, {collection, limit, batchSize})
       })
