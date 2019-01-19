@@ -42,12 +42,12 @@ class Palette {
   scramble() {
     const set = new Set(this.colors)
     const scrambled = []
-    let currentStep = 0
+    let currentStep = Math.round(this.basePalette.length / 2)
     for(let i = 0; i < this.colors.length; i++) {
       const colorToAdd = Array.from(set)[currentStep]
       scrambled.push(colorToAdd)
       set.delete(colorToAdd)
-      let step = Math.round(13 * set.size / this.basePalette.length)
+      let step = Math.round(1.25 * set.size / this.basePalette.length)
       currentStep = (currentStep + step) % set.size
     }
     this.colors = scrambled
