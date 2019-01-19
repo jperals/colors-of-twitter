@@ -31,6 +31,7 @@
     "@turf/union": "^6.0.3",
     "canvas": "^2.2.0",
     "chalk": "^2.4.1",
+    "chroma-js": "^2.0.2",
     "cld": "^2.4.8",
     "dotenv": "^6.1.0",
     "emoji-regex": "^7.0.3",
