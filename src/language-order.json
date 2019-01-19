@@ -1,18 +1,19 @@
 [
   "pt",
-  "ca",
-  "es",
   "gl",
+  "es",
   "fr",
-  "ar",
+  "ca",
+  "it",
+  "eu",
   "nl",
   "en",
   "cy",
-  "it",
+  "ar",
   "nl",
   "de",
   "da",
-  "it",
+  "pl",
   "cs",
   "pl",
   "hu",
@@ -24,5 +25,7 @@
   "pa",
   "raj",
   "sa",
-  "ta"
+  "ha",
+  "yo",
+  "ig"
 ]
