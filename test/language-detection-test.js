@@ -4,6 +4,8 @@ const {nDecimals} = require('../lib/math')
 const {cleanUp} = require('../lib/clean-up-text')
 const detectLanguage = require('../lib/detect-language')
 const sample = require('./language-detection-sample')
+const args = require('minimist')(process.argv.slice(2))
+const beVerbose = Boolean(args.verbose)
 const minimumTweetLength = Number(process.env.MIN_TWEET_LENGTH) || 0
 
 describe('The language detection mechanism', () => {
@@ -31,10 +33,12 @@ describe('The language detection mechanism', () => {
             fails += 1
           }
         }
-        console.log(report)
-        console.log('Discarded:', discarded + '/' + results.length + ' (' + nDecimals(100 * discarded / results.length, 2) + '%)')
         const translated = results.length - discarded
-        console.log('Bad detections:', fails + '/' + translated + ' (' + nDecimals(100 * fails / translated, 2) + '%)')
+        if(beVerbose) {
+          console.log(report)
+          console.log('Discarded:', discarded + '/' + results.length + ' (' + nDecimals(100 * discarded / results.length, 2) + '%)')
+          console.log('Bad detections:', fails + '/' + translated + ' (' + nDecimals(100 * fails / translated, 2) + '%)')
+        }
         const discardedOk = discarded / results.length <= 0.65
         const failsOk = fails / translated <= 0.05
         assert(discardedOk && failsOk)

@@ -1,7 +1,11 @@
 require('dotenv').config()
 const assert = require('assert')
+const args = require('minimist')(process.argv.slice(2))
 const MongoClient = require('mongodb').MongoClient
 const {doInBatches} = require('../lib/db.js')
+
+const reportProgress = Boolean(args.verbose)
+console.log('reportProgress:', reportProgress)
 
 describe('doInBatches', () => {
   it('should be able to execute a function for each database record', done => {
@@ -23,7 +27,7 @@ describe('doInBatches', () => {
       .then(client => {
         const db = client.db(process.env.DATABASE_NAME_TEST)
         const collection = db.collection(process.env.COLLECTION_TEST)
-        return doInBatches(countUp, {collection, limit, batchSize})
+        return doInBatches(countUp, {collection, limit, batchSize, reportProgress})
       })
       .then(count => {
         assert.equal(count, limit)
@@ -51,7 +55,7 @@ describe('doInBatches', () => {
       .then(client => {
         const db = client.db(process.env.DATABASE_NAME_TEST)
         const collection = db.collection(process.env.COLLECTION_TEST)
-        return doInBatches(collectId, {collection, limit, batchSize, inSequence: true})
+        return doInBatches(collectId, {collection, limit, batchSize, inSequence: true, reportProgress})
       })
       .then(count => {
         let sorted = true
@@ -76,7 +80,7 @@ describe('doInBatches', () => {
       .then(client => {
         const db = client.db(process.env.DATABASE_NAME_TEST)
         const collection = db.collection(process.env.COLLECTION_TEST)
-        return doInBatches(countUpSync, {collection, limit, batchSize})
+        return doInBatches(countUpSync, {collection, limit, batchSize, reportProgress})
       })
       .then(count => {
         assert.equal(count, limit)
