@@ -1,7 +1,7 @@
 require('dotenv').config()
 const assert = require('assert')
 const MongoClient = require('mongodb').MongoClient
-const {doInBatches} = require('../src/db.js')
+const {doInBatches} = require('../lib/db.js')
 
 describe('doInBatches', () => {
   it('should be able to execute a function for each database record', done => {

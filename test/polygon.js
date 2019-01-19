@@ -1,7 +1,7 @@
 const assert = require('assert')
 const intersect = require('@turf/intersect').default
 const az = require('./az.json')
-const land = require('../src/geojson/land.json')
+const land = require('../lib/geojson/land.json')
 const turf = require('@turf/helpers')
 
 describe('intersect', () => {

@@ -1,7 +1,7 @@
 const chalk = require('chalk')
-const {list} = require('../src/languages.js')
+const {list} = require('../lib/languages.js')
 const length = list.length
-const Palette = require('../src/palette.js')
+const Palette = require('../lib/palette.js')
 const palette = new Palette({length})
 
 describe('The palette', () => {

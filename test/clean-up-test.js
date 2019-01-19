@@ -1,5 +1,5 @@
 const assert = require('assert')
-const {removeEmojis, removeHashtags, removeUrls, removeUserMentions} = require('../src/clean-up-text')
+const {removeEmojis, removeHashtags, removeUrls, removeUserMentions} = require('../lib/clean-up-text')
 
 describe('removeEmojis', () => {
   it('should remove one single emoji at the end of a text', () => {

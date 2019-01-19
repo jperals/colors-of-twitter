@@ -1,8 +1,8 @@
 require('dotenv').config()
 const assert = require('assert')
-const {nDecimals} = require('../src/math')
-const {cleanUp} = require('../src/clean-up-text')
-const detectLanguage = require('../src/detect-language')
+const {nDecimals} = require('../lib/math')
+const {cleanUp} = require('../lib/clean-up-text')
+const detectLanguage = require('../lib/detect-language')
 const sample = require('./language-detection-sample')
 const minimumTweetLength = Number(process.env.MIN_TWEET_LENGTH) || 0
 
