@@ -32,7 +32,6 @@
     "canvas": "^2.2.0",
     "chalk": "^2.4.1",
     "cld": "^2.4.8",
-    "color-hash": "^1.0.3",
     "dotenv": "^6.1.0",
     "emoji-regex": "^7.0.3",
     "hashtag-regex": "^2.0.0",
