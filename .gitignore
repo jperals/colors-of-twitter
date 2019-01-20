@@ -2,3 +2,5 @@
 /output
 !/output/.gitkeep
 /lib/app/data/
+/dist/
+/index.html
