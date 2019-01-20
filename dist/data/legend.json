@@ -61,7 +61,7 @@
   },
   "eu": {
     "code": "eu",
-    "color": "#7a64b5",
+    "color": "#307fe8",
     "name": "Basque"
   },
   "be": {
@@ -106,7 +106,7 @@
   },
   "ca": {
     "code": "ca",
-    "color": "#64b47c",
+    "color": "#e8c631",
     "name": "Catalan"
   },
   "ceb": {
@@ -206,7 +206,7 @@
   },
   "gl": {
     "code": "gl",
-    "color": "#307fe8",
+    "color": "#7a64b5",
     "name": "Galician"
   },
   "lg": {
@@ -641,7 +641,7 @@
   },
   "es": {
     "code": "es",
-    "color": "#e8c631",
+    "color": "#64b47c",
     "name": "Spanish"
   },
   "su": {
