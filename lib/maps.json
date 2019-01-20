@@ -12,7 +12,7 @@
   },
   "india": {
     "boundingBox": [66, 37, 95, 3],
-    "languages": ["bn", "bo", "hi", "kn", "or", "pa", "raj", "sa", "ta"]
+    "languages": ["bn", "bo", "hi", "gu", "kn", "ml", "mr", "or", "pa", "raj", "sa", "sd", "si", "ta", "te"]
   },
   "world": {
     "boundingBox": [-173, 86, 180, -60]
