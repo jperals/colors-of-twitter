@@ -15,8 +15,8 @@
     "languages": ["ar", "ca", "fr", "gl", "es", "eu", "pt"]
   },
   "india": {
-    "boundingBox": [65.5, 37, 95, 4.5],
-    "languages": ["bn", "bo", "hi", "gu", "kn", "ml", "mr", "or", "pa", "raj", "sa", "sd", "si", "ta", "te"]
+    "boundingBox": [65, 37.5, 96, 3],
+    "languages": ["as", "bi", "bn", "bo", "hi", "gu", "kn", "ml", "mr", "or", "pa", "ps", "raj", "sa", "sd", "si", "ta", "te", "ur"]
   },
   "world": {
     "boundingBox": [-173, 86, 180, -60]
