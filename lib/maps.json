@@ -10,9 +10,13 @@
   "gulf-of-guinea": {
     "boundingBox": [7, 20, 20, 2]
   },
+  "iberia": {
+    "boundingBox": [-10.5, 44.5, 5.5, 34.5],
+    "languages": ["ar", "ca", "fr", "gl", "es", "eu", "pt"]
+  },
   "india": {
-    "boundingBox": [66, 37, 95, 3],
-    "languages": ["bn", "bo", "hi", "gu", "kn", "ml", "mr", "or", "pa", "raj", "sa", "sd", "si", "ta", "te"]
+    "boundingBox": [65, 37.5, 96, 3],
+    "languages": ["as", "bi", "bn", "bo", "hi", "gu", "kn", "ml", "mr", "or", "pa", "ps", "raj", "sa", "sd", "si", "ta", "te", "ur"]
   },
   "world": {
     "boundingBox": [-173, 86, 180, -60]
