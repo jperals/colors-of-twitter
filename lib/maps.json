@@ -1,7 +1,7 @@
 {
   "catalan": {
     "boundingBox": [-1.5, 44, 5, 37],
-    "languages": ["ca", "es", "fr", "it", "oc"]
+    "languages": ["ca", "es", "fr", "oc"]
   },
   "europe": {
     "boundingBox": [-27, 72, 45, 30],
