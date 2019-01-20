@@ -1,107 +1,107 @@
 {
   "ab": {
     "code": "ab",
-    "color": "#e630e8",
+    "color": "#7e4389",
     "name": "Abkhazian"
   },
   "aa": {
     "code": "aa",
-    "color": "#9b65b4",
+    "color": "#7a64b5",
     "name": "Afar"
   },
   "af": {
     "code": "af",
-    "color": "#e8ae30",
+    "color": "#f07875",
     "name": "Afrikaans"
   },
   "ak": {
     "code": "ak",
-    "color": "#7db464",
+    "color": "#cdc498",
     "name": "Akan"
   },
   "sq": {
     "code": "sq",
-    "color": "#d976ef",
+    "color": "#98c2cd",
     "name": "Albanian"
   },
   "am": {
     "code": "am",
-    "color": "#30a1e8",
+    "color": "#75f0a6",
     "name": "Amharic"
   },
   "ar": {
     "code": "ar",
-    "color": "#7330e8",
+    "color": "#a398cd",
     "name": "Arabic"
   },
   "hy": {
     "code": "hy",
-    "color": "#6d428a",
+    "color": "#315ee8",
     "name": "Armenian"
   },
   "as": {
     "code": "as",
-    "color": "#6c64b5",
+    "color": "#98accd",
     "name": "Assamese"
   },
   "ay": {
     "code": "ay",
-    "color": "#b931e8",
+    "color": "#9b75f0",
     "name": "Aymara"
   },
   "az": {
     "code": "az",
-    "color": "#8a4251",
+    "color": "#cc31e8",
     "name": "Azerbaijani"
   },
   "ba": {
     "code": "ba",
-    "color": "#b4a064",
+    "color": "#8a4742",
     "name": "Bashkir"
   },
   "eu": {
     "code": "eu",
-    "color": "#307fe8",
+    "color": "#3c15b7",
     "name": "Basque"
   },
   "be": {
     "code": "be",
-    "color": "#33e930",
+    "color": "#b8a114",
     "name": "Belarusian"
   },
   "bn": {
     "code": "bn",
-    "color": "#b064b5",
+    "color": "#c098cd",
     "name": "Bengali"
   },
   "bh": {
     "code": "bh",
-    "color": "#5131e8",
+    "color": "#1550b7",
     "name": "Bihari"
   },
   "bi": {
     "code": "bi",
-    "color": "#a565b4",
+    "color": "#5b428a",
     "name": "Bislama"
   },
   "bs": {
     "code": "bs",
-    "color": "#cdc498",
+    "color": "#e84731",
     "name": "Bosnian"
   },
   "br": {
     "code": "br",
-    "color": "#b71520",
+    "color": "#c698cd",
     "name": "Breton"
   },
   "bg": {
     "code": "bg",
-    "color": "#648eb4",
+    "color": "#428a65",
     "name": "Bulgarian"
   },
   "my": {
     "code": "my",
-    "color": "#f0c575",
+    "color": "#a330e8",
     "name": "Burmese"
   },
   "ca": {
@@ -111,62 +111,62 @@
   },
   "ceb": {
     "code": "ceb",
-    "color": "#75f0a6",
+    "color": "#b4ab64",
     "name": "Cebuano"
   },
   "chr": {
     "code": "chr",
-    "color": "#98accd",
+    "color": "#31e897",
     "name": "Cherokee"
   },
   "co": {
     "code": "co",
-    "color": "#9b75f0",
+    "color": "#647eb4",
     "name": "Corsican"
   },
   "hr": {
     "code": "hr",
-    "color": "#437f89",
+    "color": "#e8e730",
     "name": "Croatian"
   },
   "cs": {
     "code": "cs",
-    "color": "#64b5a3",
+    "color": "#98cd9d",
     "name": "Czech"
   },
   "zh": {
     "code": "zh",
-    "color": "#c998cd",
+    "color": "#42718a",
     "name": "Chinese"
   },
   "zh-Hant": {
     "code": "zh-Hant",
-    "color": "#8a7242",
+    "color": "#9264b5",
     "name": "Traditional Chinese"
   },
   "da": {
     "code": "da",
-    "color": "#b57864",
+    "color": "#cd989e",
     "name": "Danish"
   },
   "dv": {
     "code": "dv",
-    "color": "#cda198",
+    "color": "#a214b8",
     "name": "Dhivehi"
   },
   "nl": {
     "code": "nl",
-    "color": "#b4ab64",
+    "color": "#897a43",
     "name": "Dutch"
   },
   "dz": {
     "code": "dz",
-    "color": "#8a8642",
+    "color": "#cda198",
     "name": "Dzongkha"
   },
   "en": {
     "code": "en",
-    "color": "#31e897",
+    "color": "#42638a",
     "name": "English"
   },
   "eo": {
@@ -176,122 +176,122 @@
   },
   "et": {
     "code": "et",
-    "color": "#42558a",
+    "color": "#98cdba",
     "name": "Estonian"
   },
   "fo": {
     "code": "fo",
-    "color": "#8a5942",
+    "color": "#ab64b4",
     "name": "Faroese"
   },
   "fj": {
     "code": "fj",
-    "color": "#83428a",
+    "color": "#ac97ce",
     "name": "Fijian"
   },
   "fi": {
     "code": "fi",
-    "color": "#abb464",
+    "color": "#b4a064",
     "name": "Finnish"
   },
   "fr": {
     "code": "fr",
-    "color": "#cc31e8",
+    "color": "#d976ef",
     "name": "French"
   },
   "fy": {
     "code": "fy",
-    "color": "#def075",
+    "color": "#b83614",
     "name": "Frisian"
   },
   "gl": {
     "code": "gl",
-    "color": "#7a64b5",
+    "color": "#307fe8",
     "name": "Galician"
   },
   "lg": {
     "code": "lg",
-    "color": "#a214b8",
+    "color": "#434e89",
     "name": "Ganda"
   },
   "ka": {
     "code": "ka",
-    "color": "#cdbd98",
+    "color": "#c998cd",
     "name": "Georgian"
   },
   "de": {
     "code": "de",
-    "color": "#ab64b4",
+    "color": "#a565b4",
     "name": "German"
   },
   "el": {
     "code": "el",
-    "color": "#15b788",
+    "color": "#efe776",
     "name": "Greek"
   },
   "kl": {
     "code": "kl",
-    "color": "#4c428a",
+    "color": "#30e8df",
     "name": "Greenlandic"
   },
   "gn": {
     "code": "gn",
-    "color": "#b397ce",
+    "color": "#42558a",
     "name": "Guarani"
   },
   "gu": {
     "code": "gu",
-    "color": "#304ce8",
+    "color": "#156db7",
     "name": "Gujarati"
   },
   "ht": {
     "code": "ht",
-    "color": "#1426b8",
+    "color": "#64b5a3",
     "name": "Haitian Creole"
   },
   "ha": {
     "code": "ha",
-    "color": "#8de830",
+    "color": "#e8ae30",
     "name": "Hausa"
   },
   "haw": {
     "code": "haw",
-    "color": "#f0b275",
+    "color": "#e376ef",
     "name": "Hawaiian"
   },
   "iw": {
     "code": "iw",
-    "color": "#9998cd",
+    "color": "#75f0dc",
     "name": "Hebrew"
   },
   "hi": {
     "code": "hi",
-    "color": "#bee831",
+    "color": "#b88a14",
     "name": "Hindi"
   },
   "hmn": {
     "code": "hmn",
-    "color": "#85b814",
+    "color": "#b57864",
     "name": "Hmong"
   },
   "hu": {
     "code": "hu",
-    "color": "#315ee8",
+    "color": "#75b1f0",
     "name": "Hungarian"
   },
   "is": {
     "code": "is",
-    "color": "#afcd98",
+    "color": "#f09975",
     "name": "Icelandic"
   },
   "ig": {
     "code": "ig",
-    "color": "#3131e8",
+    "color": "#30a1e8",
     "name": "Igbo"
   },
   "id": {
     "code": "id",
-    "color": "#b314b8",
+    "color": "#8764b5",
     "name": "Indonesian"
   },
   "ia": {
@@ -306,82 +306,82 @@
   },
   "iu": {
     "code": "iu",
-    "color": "#75c9f0",
+    "color": "#ccce97",
     "name": "Inuktitut"
   },
   "ik": {
     "code": "ik",
-    "color": "#b87714",
+    "color": "#83428a",
     "name": "Inupiak"
   },
   "ga": {
     "code": "ga",
-    "color": "#98cdcd",
+    "color": "#8a8642",
     "name": "Irish"
   },
   "it": {
     "code": "it",
-    "color": "#e84731",
+    "color": "#b71520",
     "name": "Italian"
   },
   "jw": {
     "code": "jw",
-    "color": "#cd98cd",
+    "color": "#ac76ef",
     "name": "Javanese"
   },
   "ja": {
     "code": "ja",
-    "color": "#cc76ef",
+    "color": "#98a4cd",
     "name": "Japanese"
   },
   "kn": {
     "code": "kn",
-    "color": "#e89530",
+    "color": "#b814b7",
     "name": "Kannada"
   },
   "ks": {
     "code": "ks",
-    "color": "#897a43",
+    "color": "#b064b5",
     "name": "Kashmiri"
   },
   "kk": {
     "code": "kk",
-    "color": "#156db7",
+    "color": "#abb464",
     "name": "Kazakh"
   },
   "kha": {
     "code": "kha",
-    "color": "#4b8a42",
+    "color": "#e87330",
     "name": "Khasi"
   },
   "km": {
     "code": "km",
-    "color": "#9414b8",
+    "color": "#6474b5",
     "name": "Khmer"
   },
   "rw": {
     "code": "rw",
-    "color": "#acb814",
+    "color": "#cc76ef",
     "name": "Kinyarwanda"
   },
   "ku": {
     "code": "ku",
-    "color": "#428a65",
+    "color": "#b75b15",
     "name": "Kurdish"
   },
   "ky": {
     "code": "ky",
-    "color": "#1550b7",
+    "color": "#7c8a42",
     "name": "Kyrgyz"
   },
   "ko": {
     "code": "ko",
-    "color": "#cd989e",
+    "color": "#8d30e8",
     "name": "Korean"
   },
   "lo": {
     "code": "lo",
-    "color": "#428a82",
+    "color": "#f0b275",
     "name": "Laothian"
   },
   "la": {
@@ -391,142 +391,142 @@
   },
   "lv": {
     "code": "lv",
-    "color": "#64428a",
+    "color": "#75e3f0",
     "name": "Latvian"
   },
   "lif": {
     "code": "lif",
-    "color": "#b83614",
+    "color": "#6d14b8",
     "name": "Limbu"
   },
   "ln": {
     "code": "ln",
-    "color": "#ccce97",
+    "color": "#87428a",
     "name": "Lingala"
   },
   "lt": {
     "code": "lt",
-    "color": "#1439b8",
+    "color": "#becd98",
     "name": "Lithuanian"
   },
   "lb": {
     "code": "lb",
-    "color": "#5b428a",
+    "color": "#14b3b8",
     "name": "Luxembourgish"
   },
   "mk": {
     "code": "mk",
-    "color": "#98c2cd",
+    "color": "#e89530",
     "name": "Macedonian"
   },
   "mg": {
     "code": "mg",
-    "color": "#b75b15",
+    "color": "#be76ef",
     "name": "Malagasy"
   },
   "ms": {
     "code": "ms",
-    "color": "#ba97ce",
+    "color": "#30c8e8",
     "name": "Malay"
   },
   "ml": {
     "code": "ml",
-    "color": "#98b464",
+    "color": "#cdbd98",
     "name": "Malayalam"
   },
   "mt": {
     "code": "mt",
-    "color": "#ee75f0",
+    "color": "#646bb5",
     "name": "Maltese"
   },
   "gv": {
     "code": "gv",
-    "color": "#e975f0",
+    "color": "#5814b8",
     "name": "Manx"
   },
   "mi": {
     "code": "mi",
-    "color": "#becd98",
+    "color": "#cb98cd",
     "name": "Maori"
   },
   "mr": {
     "code": "mr",
-    "color": "#e030e8",
+    "color": "#b931e8",
     "name": "Marathi"
   },
   "mfe": {
     "code": "mfe",
-    "color": "#ac14b8",
+    "color": "#989ecd",
     "name": "Mauritian Creole"
   },
   "mn": {
     "code": "mn",
-    "color": "#767bef",
+    "color": "#98b464",
     "name": "Mongolian"
   },
   "na": {
     "code": "na",
-    "color": "#52b814",
+    "color": "#b264b4",
     "name": "Nauru"
   },
   "nr": {
     "code": "nr",
-    "color": "#8475f0",
+    "color": "#6a8a42",
     "name": "Ndebele"
   },
   "ne": {
     "code": "ne",
-    "color": "#98b7cd",
+    "color": "#b87714",
     "name": "Nepali"
   },
   "no": {
     "code": "no",
-    "color": "#6474b5",
+    "color": "#648eb4",
     "name": "Norwegian Bokmål"
   },
   "nn": {
     "code": "nn",
-    "color": "#8d30e8",
+    "color": "#4c428a",
     "name": "Norwegian Nynorsk"
   },
   "ny": {
     "code": "ny",
-    "color": "#e8314d",
+    "color": "#42448a",
     "name": "Nyanja"
   },
   "oc": {
     "code": "oc",
-    "color": "#f0d375",
+    "color": "#8014b8",
     "name": "Occitan"
   },
   "or": {
     "code": "or",
-    "color": "#a330e8",
+    "color": "#6c64b5",
     "name": "Oriya"
   },
   "om": {
     "code": "om",
-    "color": "#15b735",
+    "color": "#89428a",
     "name": "Oromo"
   },
   "ps": {
     "code": "ps",
-    "color": "#759bf0",
+    "color": "#f0c575",
     "name": "Pashto"
   },
   "nso": {
     "code": "nso",
-    "color": "#c098cd",
+    "color": "#148fb8",
     "name": "Pedi"
   },
   "fa": {
     "code": "fa",
-    "color": "#5814b8",
+    "color": "#759bf0",
     "name": "Persian"
   },
   "pl": {
     "code": "pl",
-    "color": "#e8e730",
+    "color": "#f0d375",
     "name": "Polish"
   },
   "pt": {
@@ -536,107 +536,107 @@
   },
   "pa": {
     "code": "pa",
-    "color": "#b264b4",
+    "color": "#76428a",
     "name": "Punjabi"
   },
   "qu": {
     "code": "qu",
-    "color": "#ac97ce",
+    "color": "#afcd98",
     "name": "Quechua"
   },
   "rm": {
     "code": "rm",
-    "color": "#e376ef",
+    "color": "#75c9f0",
     "name": "Rhaeto-Romance"
   },
   "ro": {
     "code": "ro",
-    "color": "#8764b5",
+    "color": "#5131e8",
     "name": "Romanian"
   },
   "rn": {
     "code": "rn",
-    "color": "#f09975",
+    "color": "#9998cd",
     "name": "Rundi"
   },
   "ru": {
     "code": "ru",
-    "color": "#e87330",
+    "color": "#e8314d",
     "name": "Russian"
   },
   "sm": {
     "code": "sm",
-    "color": "#6a8a42",
+    "color": "#e975f0",
     "name": "Samoan"
   },
   "sg": {
     "code": "sg",
-    "color": "#989ecd",
+    "color": "#def075",
     "name": "Sango"
   },
   "sa": {
     "code": "sa",
-    "color": "#b49664",
+    "color": "#cd98cd",
     "name": "Sanskrit"
   },
   "sco": {
     "code": "sco",
-    "color": "#14b3b8",
+    "color": "#8a5942",
     "name": "Scots"
   },
   "gd": {
     "code": "gd",
-    "color": "#768bef",
+    "color": "#15b788",
     "name": "Scottish Gaelic"
   },
   "sr": {
     "code": "sr",
-    "color": "#f07875",
+    "color": "#767bef",
     "name": "Serbian"
   },
   "crs": {
     "code": "crs",
-    "color": "#c698cd",
+    "color": "#7330e8",
     "name": "Seselwa"
   },
   "st": {
     "code": "st",
-    "color": "#98cdba",
+    "color": "#ee75f0",
     "name": "Sesotho"
   },
   "sn": {
     "code": "sn",
-    "color": "#42718a",
+    "color": "#8a6842",
     "name": "Shona"
   },
   "sd": {
     "code": "sd",
-    "color": "#64aeb5",
+    "color": "#4b8a42",
     "name": "Sindhi"
   },
   "si": {
     "code": "si",
-    "color": "#be76ef",
+    "color": "#98cdcd",
     "name": "Sinhalese"
   },
   "ss": {
     "code": "ss",
-    "color": "#b8a114",
+    "color": "#ba97ce",
     "name": "Siswant"
   },
   "sk": {
     "code": "sk",
-    "color": "#cb98cd",
+    "color": "#768bef",
     "name": "Slovak"
   },
   "sl": {
     "code": "sl",
-    "color": "#cdb798",
+    "color": "#b397ce",
     "name": "Slovenian"
   },
   "so": {
     "code": "so",
-    "color": "#a398cd",
+    "color": "#bff075",
     "name": "Somali"
   },
   "es": {
@@ -646,152 +646,152 @@
   },
   "su": {
     "code": "su",
-    "color": "#98a4cd",
+    "color": "#8a7242",
     "name": "Sundanese"
   },
   "sw": {
     "code": "sw",
-    "color": "#6d14b8",
+    "color": "#428a82",
     "name": "Swahili"
   },
   "sv": {
     "code": "sv",
-    "color": "#30e8df",
+    "color": "#33e930",
     "name": "Swedish"
   },
   "syr": {
     "code": "syr",
-    "color": "#87428a",
+    "color": "#1439b8",
     "name": "Syriac"
   },
   "tl": {
     "code": "tl",
-    "color": "#7e4389",
+    "color": "#649eb5",
     "name": "Tagalog"
   },
   "tg": {
     "code": "tg",
-    "color": "#8a6842",
+    "color": "#64428a",
     "name": "Tajik"
   },
   "ta": {
     "code": "ta",
-    "color": "#30c8e8",
+    "color": "#91f075",
     "name": "Tamil"
   },
   "tt": {
     "code": "tt",
-    "color": "#8014b8",
+    "color": "#64aeb5",
     "name": "Tatar"
   },
   "te": {
     "code": "te",
-    "color": "#646bb5",
+    "color": "#98b7cd",
     "name": "Telugu"
   },
   "th": {
     "code": "th",
-    "color": "#bff075",
+    "color": "#ac14b8",
     "name": "Thai"
   },
   "bo": {
     "code": "bo",
-    "color": "#b58964",
+    "color": "#8a4251",
     "name": "Tibetan"
   },
   "ti": {
     "code": "ti",
-    "color": "#148fb8",
+    "color": "#b58964",
     "name": "Tigrinya"
   },
   "to": {
     "code": "to",
-    "color": "#efe776",
+    "color": "#9b65b4",
     "name": "Tonga"
   },
   "ts": {
     "code": "ts",
-    "color": "#434e89",
+    "color": "#acb814",
     "name": "Tsonga"
   },
   "tn": {
     "code": "tn",
-    "color": "#8a4742",
+    "color": "#3131e8",
     "name": "Tswana"
   },
   "tr": {
     "code": "tr",
-    "color": "#75f0dc",
+    "color": "#e630e8",
     "name": "Turkish"
   },
   "tk": {
     "code": "tk",
-    "color": "#1f14b8",
+    "color": "#85b814",
     "name": "Turkmen"
   },
   "ug": {
     "code": "ug",
-    "color": "#b814b7",
+    "color": "#1426b8",
     "name": "Uighur"
   },
   "uk": {
     "code": "uk",
-    "color": "#d730e8",
+    "color": "#9414b8",
     "name": "Ukrainian"
   },
   "ur": {
     "code": "ur",
-    "color": "#b88a14",
+    "color": "#6d428a",
     "name": "Urdu"
   },
   "uz": {
     "code": "uz",
-    "color": "#98cd9d",
+    "color": "#b314b8",
     "name": "Uzbek"
   },
   "ve": {
     "code": "ve",
-    "color": "#42638a",
+    "color": "#b49664",
     "name": "Venda"
   },
   "vi": {
     "code": "vi",
-    "color": "#ac76ef",
+    "color": "#52b814",
     "name": "Vietnamese"
   },
   "vo": {
     "code": "vo",
-    "color": "#89428a",
+    "color": "#304ce8",
     "name": "Volapuk"
   },
   "war": {
     "code": "war",
-    "color": "#7c8a42",
+    "color": "#d730e8",
     "name": "Waray"
   },
   "cy": {
     "code": "cy",
-    "color": "#647eb4",
+    "color": "#15b735",
     "name": "Welsh"
   },
   "wo": {
     "code": "wo",
-    "color": "#75e3f0",
+    "color": "#cdad98",
     "name": "Wolof"
   },
   "xh": {
     "code": "xh",
-    "color": "#42448a",
+    "color": "#bee831",
     "name": "Xhosa"
   },
   "xx-Bugi": {
     "code": "xx-Bugi",
-    "color": "#76428a",
+    "color": "#437f89",
     "name": "X_buginese"
   },
   "xx-Goth": {
     "code": "xx-Goth",
-    "color": "#cdad98",
+    "color": "#1f14b8",
     "name": "X_gothic"
   },
   "tlh": {
@@ -806,22 +806,22 @@
   },
   "yi": {
     "code": "yi",
-    "color": "#91f075",
+    "color": "#e030e8",
     "name": "Yiddish"
   },
   "yo": {
     "code": "yo",
-    "color": "#649eb5",
+    "color": "#7db464",
     "name": "Yoruba"
   },
   "za": {
     "code": "za",
-    "color": "#3c15b7",
+    "color": "#8de830",
     "name": "Zhuang"
   },
   "zu": {
     "code": "zu",
-    "color": "#75b1f0",
+    "color": "#cdb798",
     "name": "Zulu"
   }
 }
