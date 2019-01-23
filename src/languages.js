@@ -20,7 +20,7 @@ Promise.all([
       style: function (feature) {
         return {
           fillColor: languageColor(feature.properties.language, legend),
-          fillOpacity: 1,
+          fillOpacity: 0.6,
           weight: 0
         }
       },
