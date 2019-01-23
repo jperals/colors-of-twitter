@@ -1,6 +1,7 @@
 .env
 /output
 !/output/.gitkeep
-/lib/app/data/
 /dist/
 /index.html
+/src/data/
+/src/data/.gitkeep
