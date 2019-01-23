@@ -3,6 +3,10 @@
     "boundingBox": [-1.5, 44, 5, 37],
     "languages": ["ca", "es", "fr", "oc"]
   },
+  "china": {
+    "boundingBox": [70, 54, 137, 16],
+    "languages": ["ar", "as", "bo", "da", "en", "es", "fr", "hi", "id", "it", "kha", "ja", "jw", "ko", "mn", "ne", "nl", "pl", "pt", "th", "ru", "vi", "zh", "zh-Hant"]
+  },
   "europe": {
     "boundingBox": [-27, 72, 45, 30],
     "languages": ["ar", "be", "bg", "br", "bs", "ca", "co", "cs", "cy", "da", "de", "el", "en", "es", "et", "eu", "fi", "fo", "fr", "fy", "ga", "gd", "gl", "gv", "hr", "hu", "is", "it", "iw", "lb", "lt", "lv", "mk", "mt", "nl", "no", "nn", "oc", "ro", "pl", "pt", "ru", "sco", "sk", "sl", "sq", "sr", "sr-ME", "sv", "tr", "tt", "uk", "ur", "yi"]
