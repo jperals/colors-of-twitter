@@ -5,14 +5,14 @@
   },
   "europe": {
     "boundingBox": [-27, 72, 45, 30],
-    "languages": ["ar", "be", "bg", "br", "bs", "ca", "co", "cs", "cy", "da", "de", "el", "en", "es", "et", "eu", "fi", "fo", "fr", "fy", "ga", "gd", "gl", "gv", "hr", "hu", "is", "it", "iw", "lb", "lt", "lv", "mk", "mt", "nl", "no", "nn", "oc", "ro", "pl", "pt", "ru", "sco", "sk", "sq", "sr", "sr-ME", "sv", "tr", "tt", "uk", "ur", "yi"]
+    "languages": ["ar", "be", "bg", "br", "bs", "ca", "co", "cs", "cy", "da", "de", "el", "en", "es", "et", "eu", "fi", "fo", "fr", "fy", "ga", "gd", "gl", "gv", "hr", "hu", "is", "it", "iw", "lb", "lt", "lv", "mk", "mt", "nl", "no", "nn", "oc", "ro", "pl", "pt", "ru", "sco", "sk", "sl", "sq", "sr", "sr-ME", "sv", "tr", "tt", "uk", "ur", "yi"]
   },
   "gulf-of-guinea": {
     "boundingBox": [7, 20, 20, 2]
   },
   "iberia": {
     "boundingBox": [-10.5, 45, 5.5, 34],
-    "languages": ["ar", "ca", "fr", "gl", "es", "eu", "oc", "pt"]
+    "languages": ["ar", "ca", "fr", "gl", "es", "eu", "pt"]
   },
   "india": {
     "boundingBox": [65.5, 39, 101, 3],
