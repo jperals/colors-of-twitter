@@ -1,10 +1,11 @@
-# TLMG
+# Colors of Twitter
 
-> Twitter Language Map Generator
+> Generate maps out of Twitter data
 
-This is a set of scripts that generate language maps out of Twitter data.
 
 ![Sample image](./sample.png)
+
+This is a set of scripts that let you generate language maps from Twitter data.
 
 Nor the maps nor the data themselves are provided here, the idea is that you can generate them yourself with the instructions below.
 
