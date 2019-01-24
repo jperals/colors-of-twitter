@@ -78,7 +78,7 @@ npm run png --exclude=en,ja,es
 
 ## Artificially limiting language boundaries
 
-If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./src/fences](./src/fences).
+If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./lib/fences](./lib/fences).
 
 An easy way yo do it is to draw the corresponding shapes using a service like `geojson.io` and copy-paste the result to a JSON file named after the language code, just like the existing `en.json` file that you can see.
 
