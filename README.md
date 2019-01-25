@@ -1,10 +1,11 @@
-# TLMG
+# Colors of Twitter
 
-> Twitter Language Map Generator
+> Generate maps out of Twitter data
 
-This is a set of scripts that generate language maps out of Twitter data.
 
 ![Sample image](./sample.png)
+
+This is a set of scripts that let you generate language maps from Twitter data.
 
 Nor the maps nor the data themselves are provided here, the idea is that you can generate them yourself with the instructions below.
 
@@ -78,7 +79,7 @@ npm run png --exclude=en,ja,es
 
 ## Artificially limiting language boundaries
 
-If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./src/fences](./src/fences).
+If you want to manually fine tune your maps, one way to do it is to apply boundaries to languages. You can do that by adding the corresponding GeoJSON file under [./lib/fences](./lib/fences).
 
 An easy way yo do it is to draw the corresponding shapes using a service like `geojson.io` and copy-paste the result to a JSON file named after the language code, just like the existing `en.json` file that you can see.
 
