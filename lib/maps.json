@@ -19,8 +19,8 @@
     "languages": ["ar", "ca", "fr", "gl", "es", "eu", "pt"]
   },
   "india": {
-    "boundingBox": [65.5, 39, 101, 3],
     "languages": ["as", "bi", "bn", "hi", "gu", "kn", "ml", "mr", "or", "pa", "raj", "sa", "si", "ta", "te"]
+    "boundingBox": [66, 38.5, 99, 3],
   },
   "india+": {
     "boundingBox": [61, 39, 99.5, 3],
