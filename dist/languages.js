@@ -8,10 +8,10 @@ L.tileLayer('https://api.mapbox.com/styles/v1/jperals/cjppwqrjc0c302rmls938rydi/
 }).addTo(map)
 
 Promise.all([
-  fetch('./dist/data/language-areas.json')
+  fetch('./data/language-areas.json')
   .then(buffer => buffer.text())
   .then(text => JSON.parse(text)),
-  fetch('./dist/data/legend.json')
+  fetch('./data/legend.json')
   .then(buffer => buffer.text())
   .then(text => JSON.parse(text))
 ])
@@ -20,7 +20,7 @@ Promise.all([
       style: function (feature) {
         return {
           fillColor: languageColor(feature.properties.language, legend),
-          fillOpacity: 0.7,
+          fillOpacity: 0.6,
           weight: 0
         }
       },
