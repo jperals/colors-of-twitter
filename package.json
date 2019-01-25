@@ -4,6 +4,7 @@
   "description": "Generates language maps from Twitter data",
   "main": "index.js",
   "scripts": {
+    "build": "rm -rf dist/ && mkdir dist && mkdir dist/data && cp output/language-areas.json dist/data && cp output/legend.json dist/data && cp www/* dist",
     "collect": "node lib/collect.js",
     "geojson": "node lib/map.js --geojson",
     "legend": "node lib/legend.js --json",

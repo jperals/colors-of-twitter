@@ -2,6 +2,3 @@
 /output/*
 !/output/.gitkeep
 /dist/
-/index.html
-/src/data/*
-!/src/data/.gitkeep
