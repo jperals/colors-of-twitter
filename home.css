@@ -1,0 +1,130 @@
+body {
+    margin: 0;
+    font-family: 'Titillium Web', sans-serif;}
+
+#content {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#intro {
+    background: linear-gradient(to right, hsl(320, 10%, 20%), hsl(320, 10%, 42%) 370px);
+    color: white;
+}
+
+#intro > * {
+    padding: 0 16px;
+}
+
+#footer {
+    background-color: hsl(0, 0%, 75%);
+    color: hsl(0, 0%, 50%);
+    font-size: 12px;
+    padding: 6px;
+    text-align: right;
+}
+
+#footer a {
+    color: hsl(0, 0%, 30%) !important;
+}
+
+h1,
+#description,
+#links {
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+h1 {
+    color: hsl(28, 90%, 88%);
+    font-size: 28px;
+    font-weight: normal;
+}
+
+#description {
+    color: hsl(250, 10%, 88%);
+    font-weight: 200;
+    text-shadow: black 0 0 4px;
+}
+
+#links {
+    text-align: right;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#links .logo {
+    display: block;
+}
+
+#links .github-logo {
+    height: 19px;
+}
+
+#links .twitter-logo {
+    height: 26px;
+}
+
+#link .link {
+    color: white !important;
+    display: flex;
+    transition: opacity 300ms;
+}
+
+#links .link:not(:last-child) {
+    margin-right: 8px;
+}
+
+#links .link:not(:hover) {
+    opacity: 0.6;
+}
+
+#links .link:not(:hover) .text-more {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+#map {
+    flex-grow: 1;
+}
+
+#intro {
+    color: white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+@media (max-width: 656px) {
+    h1 {
+        flex-grow: 1;
+    }
+
+    #description {
+        display: none;
+    }
+}
+
+@media (min-width: 657px) {
+    #description {
+        flex-grow: 1;
+        text-align: center;
+        margin: 0;
+        position: relative;
+    }
+
+    #description:after {
+        display: block;
+        content: ' ';
+        background-color: white;
+        opacity: 0.1;
+        width: 100%;
+        height: 500%;
+        position: absolute;
+        top: -200%;
+        left: 0;
+        transform: skew(-10deg);
+    }
+}
