@@ -3,7 +3,7 @@ const map = L.map('map', {
 }).setView([25, 2], 2)
 
 map.createPane('political-layer')
-map.getPane('political-layer').style.zIndex = 1000
+// map.getPane('political-layer').style.zIndex = 1000
 map.getPane('political-layer').style.pointerEvents = 'none'
 
 Promise.all([
@@ -19,22 +19,23 @@ Promise.all([
       style: function (feature) {
         return {
           fillColor: languageColor(feature.properties.language, legend),
-          fillOpacity: 1,
+          fillOpacity: 0.6,
           weight: 0
         }
       }
     }).bindTooltip(function (layer) {
       return languageName(layer.feature.properties.language, legend)
     }, {
+      pane: 'political-layer',
       sticky: true
     })
       .addTo(map)
-    L.tileLayer('https://api.mapbox.com/styles/v1/jperals/cjppwqrjc0c302rmls938rydi/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoianBlcmFscyIsImEiOiJjajR4NnhwazUwcGdvMzNxbnMzY3Qza3BvIn0.Ae2Eze-ABuDGlilGHthLXQ', {
+    L.tileLayer('https://api.mapbox.com/styles/v1/jperals/cjri9ka986il62to7wcwj3xbs/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoianBlcmFscyIsImEiOiJjajR4NnhwazUwcGdvMzNxbnMzY3Qza3BvIn0.Ae2Eze-ABuDGlilGHthLXQ', {
       maxZoom: 18,
       id: 'mapbox.satellite',
       accessToken: 'pk.eyJ1IjoianBlcmFscyIsImEiOiJjajR4NnhwazUwcGdvMzNxbnMzY3Qza3BvIn0.Ae2Eze-ABuDGlilGHthLXQ',
-      opacity: 0.6,
-      pane: 'political-layer'
+      opacity: 0.8,
+      // pane: 'political-layer'
     }).addTo(map)
 
   })
