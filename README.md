@@ -1,6 +1,6 @@
 # Colors of Twitter
 
-> Generate maps out of Twitter data
+> Generate language maps out of Twitter data
 
 
 ![Sample image](./sample.png)
