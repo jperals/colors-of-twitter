@@ -15,7 +15,7 @@
     "process": "node lib/process-collected.js",
     "serve": "gulp serve",
     "start": "npm run collect",
-    "stats": "node lib/stats.js",
+    "stats": "node lib/print-stats.js",
     "test": "mocha test/*-test.js"
   },
   "keywords": [
