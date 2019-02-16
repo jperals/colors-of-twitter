@@ -1,9 +1,7 @@
-const map = L.map('map', {
-  attributionControl: false
-}).setView([25, 2], 2)
+const map = L.map('map').setView([25, 2], 2)
 
 map.createPane('political-layer')
-// map.getPane('political-layer').style.zIndex = 1000
+
 map.getPane('political-layer').style.pointerEvents = 'none'
 
 Promise.all([
@@ -39,10 +37,6 @@ Promise.all([
     }).addTo(map)
 
   })
-
-L.control.attribution({
-  prefix: false
-}).addAttribution('&copy; <a href="https://perals.io">Joan Perals</a> 2019 | Using <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> | Background map imagery © <a href="https://www.mapbox.com/">Mapbox</a>').addTo(map)
 
 function languageColor(languageCode, legend) {
   if (legend[languageCode]) {
