@@ -90,3 +90,7 @@ You can bypass this feature altogether when generating PNG maps by passing a `--
 ```sh
 npm run png -- --raw
 ``` 
+
+## License
+
+[AGPL v3](./LICENSE)
